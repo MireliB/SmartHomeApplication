@@ -1,0 +1,70 @@
+.rooms-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin: -10px;
+}
+
+.room-card {
+  text-decoration: none;
+  color:  white;
+
+}
+
+.room {
+  width: 300px;
+  height: 200px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  margin: 10px;
+  padding: 15px;
+  transition: all 0.3s ease; /* Add transition properties to create smooth effect */
+}
+
+.room:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.room:before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 20px solid #ffffff;
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.room-name {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #555555;
+  text-align: center;
+}
+
+.room-content {
+  padding: 20px;
+  text-align: center;
+  color: #666666;
+}
+
+@media (max-width: 768px) {
+    .room{
+      width: 50%;
+      font-size: 20px;
+    }
+
+
+}

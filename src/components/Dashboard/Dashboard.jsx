@@ -1,0 +1,139 @@
+import React, { useState } from "react";
+import { Box, Button, Typography, useTheme } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { deleteRoom } from "../../slice/roomSlice"; //going to be added for deleting rooms history
+import { tokens } from "../../Theme";
+import Header from "../Header";
+import RoomIcon from "@mui/icons-material/MeetingRoom";
+import DeviceIcon from "@mui/icons-material/DevicesOutlined";
+import StatBox from "../StatBox";
+import { StackedLineChart } from "@mui/icons-material";
+
+export default function Dashboard() {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isRoomsVisible, setIsRoomVisible] = useState(false);
+  const { rooms } = useSelector((state) => state.rooms);
+  const latestRooms = rooms.slice(-3);
+  // const roomMapping = rooms.map((room, index) => room.roomName);
+
+  const handleShowRoomsPage = () => {
+    navigate("/roomsPage");
+  };
+
+  const deleteRoomHandler = (roomName) => {
+    dispatch(deleteRoom({ roomName }));
+  };
+
+  return (
+    <Box m={"2vh"}>
+      <Box
+        display={"flex"}
+        justifyContent={"space-between"}
+        alignItems={"center"}
+      >
+        <Header
+          title="DASHBOARD"
+          subtitle="Welcome to your smart home Dashboard panel! From here, you can manage your home's devices with ease."
+        />
+
+        <Box>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "0.8vw", // Using 1.4% of viewport width for font size
+              fontWeight: "bold",
+              padding: "1vh 1vw", // Using 1% of viewport height and 2% of viewport width for padding
+            }}
+            onClick={handleShowRoomsPage}
+          >
+            Move to Rooms Page
+          </Button>
+        </Box>
+      </Box>
+
+      {/* GRID  */}
+      <Box
+        display={"grid"}
+        gridTemplateAreas={"repeat(12, 1fr)"}
+        gridAutoRows={"14vh"}
+        gap={"2vh"}
+      >
+        <Box
+          gridColumn={"span 3"}
+          backgroundColor={colors.primary[400]}
+          display={"flex"}
+          alignItems={"center"}
+          justifyContent={"center"}
+        >
+          <StatBox
+            title={"Rooms"}
+            subtitle={`Latest Rooms : ${latestRooms
+              .map((room) => room.roomName)
+              .join(", ")}`}
+            icon={
+              <RoomIcon
+                sx={{ color: colors.greenAccent[400], fontSize: "2.1vw" }}
+              />
+            }
+          ></StatBox>
+          <StatBox
+            title={"Devices"}
+            subtitle={"Used Devices"}
+            icon={
+              <DeviceIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "2.1vw" }}
+              />
+            }
+          ></StatBox>
+        </Box>
+
+        <Box
+          gridColumn={"span 8 "}
+          gridRow={"span 2"}
+          backgroundColor={colors.primary[400]}
+        >
+          <Box
+            mt={"25px"}
+            p={"0 30px"}
+            display={"flex"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
+            <Box>
+              <Typography
+                variant="h5"
+                fontWeight={"600"}
+                color={colors.grey[100]}
+              >
+                Existing Rooms
+              </Typography>
+              <Typography
+                variant="h5"
+                fontWeight={"500"}
+                color={colors.greenAccent[500]}
+              >
+                {rooms.map((room, index) => (
+                  <Typography>
+                    Room Name: {room.roomName}, RoomType: {room.roomType}
+                    {/* TODO
+                      FIX THE DELETE BUTTON - SAYS ROOM IS UNDEFINED
+                    */}
+                    {/* <button onClick={() => deleteRoomHandler(room.roomName)}>
+                      DELETE
+                    </button> */}
+                  </Typography>
+                ))}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}

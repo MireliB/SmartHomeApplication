@@ -1,0 +1,49 @@
+/* SideDrawer.module.css */
+
+.drawer-wrapper {
+  width: 30dvw; /* Adjust the width as needed */
+  
+}
+
+.drawer-button {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+.drawer-container{
+
+  background-color:#122b47;
+  
+}
+.logo{
+  font-family: "DM Sans", sans-serif; 
+  font-size: 28px;
+  line-height: 40px;
+  font-weight: 600;
+  width: 100%;
+}
+
+.listItem {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.listItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.icon {
+  color: white;
+  margin-left: 30px;
+  font-family: "DM Sans", sans-serif; 
+
+
+}
+
+.text {
+  color: white;
+  font-family: "DM Sans", sans-serif; 
+
+
+}

@@ -1,0 +1,41 @@
+/* Login.module.css */
+
+  .input {
+    margin-bottom: 20px;
+  }
+  
+  .email,
+  .password {
+    width: 30dvw;
+    height: 5dvh;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .captcha {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .captcha label {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .button {
+    background: #122b47;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: gray;
+  }
