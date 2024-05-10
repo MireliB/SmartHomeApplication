@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addRoom } from "../../slice/roomSlice";
 import { Box, Button, Typography } from "@mui/material";
-import AddDevices from "../RoomDevices/AddDevices";
-import Room from "./Room";
 import Header from "../Header";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../Theme";
@@ -35,9 +33,9 @@ export default function RoomsPage() {
         showRoomHandler={showRoomHandler}
         showRoom={showRoom}
         setShowRoom={setShowRoom}
-        rooms={roomsWithId} // Pass rooms data to EmptyRoom component
+        rooms={roomsWithId}
         devices={devicesWithId}
-        dispatch={dispatch} // Pass dispatching for using in empryRoom Component
+        dispatch={dispatch}
       />
     </div>
   );
@@ -94,7 +92,6 @@ function EmptyRoom({ toggle, setAddRoomIsOpen, dispatch, rooms, devices }) {
         }}
       >
         <DataGrid rows={rooms} columns={columns} devices={devices} />
-        {/* Use rooms data */}
       </Box>
       <Button
         variant="contained"

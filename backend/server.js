@@ -4,16 +4,26 @@ const router = require("./routes/router");
 const bodyParser = require("body-parser");
 const axios = require("axios");
 const app = express();
-// git clone https://github.com/CIRCLECI-GWP/making-http-requests-axios
 
-axios
-  .get("https://jsonplaceholder.typicode.com/users/1")
-  .then((response) => {
-    console.log(response);
-  })
-  .catch((err) => console.log(err));
+// doesnt work need to check why
 
+app.get("/api", (req, res) => {
+  res.send("From server");
+});
+
+//works!
 app.use(bodyParser.json());
+
+app.post("/api/login", (req, res) => {
+  let { email, password } = req.body;
+  if (email === "admin" && password === "password") {
+    console.log("Succeed");
+  } else {
+    console.log("Not a valid user");
+  }
+  res.json({ message: "Form Submitted" });
+});
+
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const coreOptions = {
@@ -27,6 +37,6 @@ app.use("/", router);
 
 const port = 3000;
 
-const server = app.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

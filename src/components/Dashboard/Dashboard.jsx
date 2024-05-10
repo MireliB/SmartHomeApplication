@@ -8,24 +8,17 @@ import Header from "../Header";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
 import DeviceIcon from "@mui/icons-material/DevicesOutlined";
 import StatBox from "../StatBox";
-import { StackedLineChart } from "@mui/icons-material";
 
 export default function Dashboard() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isRoomsVisible, setIsRoomVisible] = useState(false);
   const { rooms } = useSelector((state) => state.rooms);
   const latestRooms = rooms.slice(-3);
-  // const roomMapping = rooms.map((room, index) => room.roomName);
 
   const handleShowRoomsPage = () => {
     navigate("/roomsPage");
-  };
-
-  const deleteRoomHandler = (roomName) => {
-    dispatch(deleteRoom({ roomName }));
   };
 
   return (
@@ -62,7 +55,7 @@ export default function Dashboard() {
         display={"grid"}
         gridTemplateAreas={"repeat(12, 1fr)"}
         gridAutoRows={"14vh"}
-        gap={"2vh"}
+        gap={"3vh"}
       >
         <Box
           gridColumn={"span 3"}
