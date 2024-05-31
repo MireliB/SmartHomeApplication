@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+// this file is for checking backend only
 router.get("/users", (req, res) => {
   const userData = [
     [

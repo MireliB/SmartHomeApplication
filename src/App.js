@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ColorModeContext, useMode } from "./Theme.js";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 
 import SideDrawer from "./components/Global/SideDrawer.jsx";
 import Dashboard from "./components/Dashboard/Dashboard.jsx";
@@ -20,33 +26,120 @@ import Settings from "./components/Settings/Settings.jsx";
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [token, setToken] = useState();
 
-  // if (!token) {
-  //   return <Login setToken={setToken} />;
-  // }
+  const storedLocation = JSON.parse(window.localStorage.getItem("location"));
+  const initialLocation = storedLocation;
+
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const storedIsLoggedIn = window.localStorage.getItem("isLoggedIn");
+    return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
+  });
+
+  useEffect(() => {
+    const token = window.localStorage.getItem("token");
+    if (token) {
+      const loginTime = JSON.parse(window.localStorage.getItem("loginTime"));
+      const expirationTime = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+
+      if (loginTime && Date.now() - loginTime < expirationTime) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+        window.localStorage.removeItem("token");
+        window.localStorage.removeItem("loginTime");
+        window.localStorage.removeItem("isLoggedIn");
+      }
+    }
+  }, []);
+
+  const storeLocation = () => {
+    const location = window.location.pathname;
+    window.localStorage.setItem("location", JSON.stringify(location));
+  };
+
+  const loginHandler = () => {
+    setIsLoggedIn(true);
+    window.localStorage.setItem("longTime", JSON.stringify(Date.now()));
+    window.localStorage.setItem("isLoggedIn", JSON.stringify(true));
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+
+    window.localStorage.removeItem("token");
+    window.localStorage.removeItem("loginTime");
+    window.localStorage.removeItem("isLoggedIn");
+  };
+
+  const renderRouterPaths = () => {
+    if (!isLoggedIn) {
+      return (
+        <>
+          <Route path="/" element={<Navigate to={"/login"} />} />
+          <Route
+            path="/login"
+            element={
+              <Login
+                isLoggedIn={isLoggedIn}
+                onLogin={loginHandler}
+                setIsLoggedIn={setIsLoggedIn}
+              />
+            }
+          />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Route
+            path="/dashboard"
+            element={<Dashboard isLoggedIn={isLoggedIn} />}
+          />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/roomsPage" element={<RoomsPage />} />
+          <Route path="/addRoom" element={<AddRoom />} />
+          <Route path="/room" element={<Room />} />
+          <Route path="/device" element={<Device />} />
+          <Route path="/aboutUs" element={<AboutUs />} />
+          <Route path="/contacts" element={<Contacts />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/dashboard" />} />
+        </>
+      );
+    }
+  };
+
+  const renderTopHeader = () => {
+    if (isLoggedIn) {
+      return (
+        <SideDrawer
+          isSidebar={isSidebarOpen}
+          handleLogout={handleLogout}
+          isLoggedIn={isLoggedIn}
+          setIsLoggedIn={setIsLoggedIn}
+          onLogOut={handleLogout}
+        />
+      );
+    } else {
+      return <></>;
+    }
+  };
+
   return (
     <BrowserRouter>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <div className="app" style={{ flex: 1, height: "100vh" }}>
-            <SideDrawer isSidebar={isSidebarOpen} />
-            <main className="content">
-              <Top setIsSidebar={setIsSidebarOpen} />
+          <div className="app" style={{ display: "flex", height: "100vh" }}>
+            {renderTopHeader()}
+            <main className="content" style={{ flex: 1 }}>
+              {isLoggedIn && <Top setIsSidebar={setIsSidebarOpen} />}
 
-              <Routes>
+              <Routes location={initialLocation} onUpdate={storeLocation}>
+                {renderRouterPaths()}
                 <Route path="/" element={<Homepage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/roomsPage" element={<RoomsPage />} />
-                <Route path="/addRoom" element={<AddRoom />} />
-                <Route path="/room" element={<Room />} />
-                <Route pa th="/device" element={<Device />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/aboutUs" element={<AboutUs />} />
-                <Route path="/contacts" element={<Contacts />} />
-                <Route path="/settings" element={<Settings />} />
               </Routes>
             </main>
           </div>

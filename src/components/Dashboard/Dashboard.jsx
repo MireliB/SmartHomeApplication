@@ -9,7 +9,7 @@ import RoomIcon from "@mui/icons-material/MeetingRoom";
 import DeviceIcon from "@mui/icons-material/DevicesOutlined";
 import StatBox from "../StatBox";
 
-export default function Dashboard() {
+export default function Dashboard({ isLoggedIn }) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // const dispatch = useDispatch();

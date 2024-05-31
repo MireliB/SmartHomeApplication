@@ -9,6 +9,8 @@ import {
   AttachMoney as MoneyIcon,
   Settings as SettingsIcon,
   Menu as MenuIcon,
+  Notifications as NotificationsIcon,
+  ExitToApp as LogoutIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -18,9 +20,8 @@ import {
   useTheme,
 } from "@mui/material";
 import "react-pro-sidebar/dist/css/styles.css";
-import Item from "./Item";
 import { tokens } from "../../Theme";
-import classes from "../../index.css";
+import { useNavigate } from "react-router-dom";
 
 const navigationItems = [
   { path: "/", name: "Home", icon: <HomeIcon /> },
@@ -29,80 +30,99 @@ const navigationItems = [
   { path: "/aboutUs", name: "About", icon: <InfoIcon /> },
   { path: "/contacts", name: "Contact Information", icon: <HelpIcon /> },
   { path: "/finances", name: "Finances", icon: <MoneyIcon /> },
+  {
+    path: "/notifications",
+    name: "Notifications",
+    icon: <NotificationsIcon />,
+  },
   { path: "/settings", name: "Settings", icon: <SettingsIcon /> },
+  { path: "/logout", name: "Logout", icon: <LogoutIcon /> },
 ];
-export default function SideDrawer() {
+export default function SideDrawer({ onLogout, isLoggedIn }) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
+  const nav = useNavigate();
+
   const collapsedHandler = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  return (
-    <Box
-      className={classes.sideDrawerContainer}
-      sx={{
-        "& .pro-sidebar-inner, & .pro-icon-wrapper": {
-          background: `${colors.primary[400]} !important`,
-        },
-        "& .pro-inner-item": { padding: "5px 35px 5px 20px !important" },
-        "& .pro-inner-item:hover": { color: "#868dfb !important" },
-        "& .pro-menu-item.active": { color: "#6870fa !important" },
-      }}
-    >
-      <CssBaseline />
-      <ProSidebar collapsed={isCollapsed}>
-        <Menu iconShape="square">
-          <MenuItem
-            onClick={collapsedHandler}
-            icon={isCollapsed ? <MenuIcon /> : undefined}
-            style={{ margin: "10px 0 20px 0", color: colors.grey[100] }}
-          >
-            {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
-                <Typography
-                  onClick={collapsedHandler}
-                  variant="h4"
-                  color={colors.grey[100]}
-                  fontWeight="bold"
-                  textAlign="center"
-                  paddingLeft={isCollapsed ? undefined : "10%"}
-                >
-                  SMART HOME
-                </Typography>
-                <IconButton onClick={collapsedHandler}>
-                  <MenuIcon />
-                </IconButton>
-              </Box>
-            )}
-          </MenuItem>
+  const handleLogOut = (path) => {
+    if (path === "/logout") {
+      onLogout();
+      nav("/login");
+    } else {
+      nav(path);
+    }
+  };
 
-          <Box textAlign="center" paddingLeft={isCollapsed ? undefined : "10%"}>
-            {navigationItems.map((item, index) => (
-              <Item
-                key={index}
-                to={item.path}
-                title={item.name}
-                icon={item.icon}
-                selected={selected}
-                setSelected={setSelected}
-                color={colors.grey[100]}
-                sx={{ m: "10px 0 0 0" }}
+  return (
+    <Box height="100vh">
+      {isLoggedIn && (
+        <Box
+          sx={{
+            "& .pro-sidebar-inner, & .pro-icon-wrapper": {
+              background: `${colors.primary[400]} !important`,
+            },
+            "& .pro-inner-item": { padding: "5px 35px 5px 20px !important" },
+            "& .pro-inner-item:hover": { color: "#868dfb !important" },
+            "& .pro-menu-item.active": { color: "#6870fa !important" },
+          }}
+        >
+          <CssBaseline />
+          <ProSidebar collapsed={isCollapsed}>
+            <Menu iconShape="square">
+              <MenuItem
+                onClick={collapsedHandler}
+                icon={isCollapsed ? <MenuIcon /> : undefined}
+                style={{ margin: "10px 0 20px 0", color: colors.grey[100] }}
               >
-                {item.icon}
-              </Item>
-            ))}
-          </Box>
-        </Menu>
-      </ProSidebar>
+                {!isCollapsed && (
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    ml="15px"
+                  >
+                    <Typography
+                      variant="h4"
+                      color={colors.grey[100]}
+                      fontWeight="bold"
+                    >
+                      SMART HOME
+                    </Typography>
+                    <IconButton onClick={collapsedHandler}>
+                      <MenuIcon />
+                    </IconButton>
+                  </Box>
+                )}
+              </MenuItem>
+
+              <Box
+                textAlign="center"
+                paddingLeft={isCollapsed ? undefined : "10%"}
+              >
+                {navigationItems.map((item, index) => (
+                  <MenuItem
+                    key={index}
+                    icon={item.icon}
+                    onClick={() => handleLogOut(item.path)}
+                    active={selected === item.name}
+                    onMouseEnter={() => setSelected(item.name)}
+                    onMouseLeave={() => setSelected("")}
+                    style={{ color: colors.grey[100] }}
+                  >
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </Box>
+            </Menu>
+          </ProSidebar>
+        </Box>
+      )}
     </Box>
   );
 }
