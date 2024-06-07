@@ -29,7 +29,9 @@ mongoose
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
-const jwtSecret = process.env.JWT_SECRET;
+
+const jwtSecret = process.env.JWT_SECRET || "secret"; // Make sure JWT_SECRET is defined in your .env
+
 // Schemas
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
@@ -72,21 +74,24 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
+
 app.post("/login", async (req, res) => {
+  console.log("Received login request with body:", req.body); // Logging the request body
   const { email, password } = req.body;
-  console.log("Login Request Body:", req.body); // Debugging line
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, "secret", { expiresIn: "8h" });
+    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "8h" });
     res.json({ token });
   } catch (err) {
-    console.error("Server Error:", err); // Detailed logging
+    console.error("Server Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -99,7 +104,7 @@ const authenticate = (req, res, next) => {
   if (!token) return res.status(401).json({ message: "Access denied" });
 
   try {
-    const decoded = jwt.verify(token, "secret");
+    const decoded = jwt.verify(token, jwtSecret);
     req.userId = decoded.id;
     next();
   } catch (error) {

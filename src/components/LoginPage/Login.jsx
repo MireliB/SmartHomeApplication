@@ -33,29 +33,24 @@ export default function Login({ isLoggedIn, setIsLoggedIn, onLogin }) {
         email,
         password,
       });
+      console.log("Login response:", response.data); // Logging the response
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem("longTime", JSON.stringify(Date.now()));
-        setIsLoggedIn(true);
+        localStorage.setItem("loginTime", JSON.stringify(Date.now()));
         onLogin();
         nav("/dashboard");
       } else {
         setErrorMsg(response.data.message);
       }
     } catch (err) {
+      console.error("Login error:", err); // Logging the error
       if (err.response) {
-        // Server responded with a status other than 2xx
-        setErrorMsg(
-          err.response.data.message || "Failed to login. Please try again."
-        );
+        setErrorMsg(err.response.data.message || "Failed to login. Please try again.");
       } else if (err.request) {
-        // Request was made but no response received
         setErrorMsg("No response from server. Please check your connection.");
       } else {
-        // Something happened in setting up the request
         setErrorMsg("An error occurred. Please try again.");
       }
-      console.error(err);
     }
   };
 

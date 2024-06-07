@@ -6,7 +6,6 @@ import {
   Navigate,
   Route,
   Routes,
-  useLocation,
 } from "react-router-dom";
 
 import SideDrawer from "./components/Global/SideDrawer.jsx";
@@ -59,13 +58,12 @@ function App() {
 
   const loginHandler = () => {
     setIsLoggedIn(true);
-    window.localStorage.setItem("longTime", JSON.stringify(Date.now()));
+    window.localStorage.setItem("loginTime", JSON.stringify(Date.now()));
     window.localStorage.setItem("isLoggedIn", JSON.stringify(true));
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-
     window.localStorage.removeItem("token");
     window.localStorage.removeItem("loginTime");
     window.localStorage.removeItem("isLoggedIn");
@@ -75,17 +73,7 @@ function App() {
     if (!isLoggedIn) {
       return (
         <>
-          <Route path="/" element={<Navigate to={"/login"} />} />
-          <Route
-            path="/login"
-            element={
-              <Login
-                isLoggedIn={isLoggedIn}
-                onLogin={loginHandler}
-                setIsLoggedIn={setIsLoggedIn}
-              />
-            }
-          />
+          <Route path="/login" element={<Login onLogin={loginHandler} />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </>
@@ -93,10 +81,7 @@ function App() {
     } else {
       return (
         <>
-          <Route
-            path="/dashboard"
-            element={<Dashboard isLoggedIn={isLoggedIn} />}
-          />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/roomsPage" element={<RoomsPage />} />
           <Route path="/addRoom" element={<AddRoom />} />
@@ -117,13 +102,10 @@ function App() {
         <SideDrawer
           isSidebar={isSidebarOpen}
           handleLogout={handleLogout}
-          isLoggedIn={isLoggedIn}
-          setIsLoggedIn={setIsLoggedIn}
-          onLogOut={handleLogout}
         />
       );
     } else {
-      return <></>;
+      return null;
     }
   };
 
@@ -136,10 +118,9 @@ function App() {
             {renderTopHeader()}
             <main className="content" style={{ flex: 1 }}>
               {isLoggedIn && <Top setIsSidebar={setIsSidebarOpen} />}
-
               <Routes location={initialLocation} onUpdate={storeLocation}>
-                {renderRouterPaths()}
                 <Route path="/" element={<Homepage />} />
+                {renderRouterPaths()}
               </Routes>
             </main>
           </div>
