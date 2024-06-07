@@ -29,14 +29,17 @@ function App() {
     return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
   });
 
+  // a useEffect for user token
   useEffect(() => {
     const token = window.localStorage.getItem("token");
     if (token) {
+      // keeps the user logged in for 8 hours
       const loginTime = JSON.parse(window.localStorage.getItem("loginTime"));
       const expirationTime = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
 
       if (loginTime && Date.now() - loginTime < expirationTime) {
         setIsLoggedIn(true);
+        // if im not logged in it will remove the token the time and the login
       } else {
         setIsLoggedIn(false);
         window.localStorage.removeItem("token");
@@ -57,6 +60,7 @@ function App() {
     window.localStorage.setItem("isLoggedIn", JSON.stringify(true));
   };
 
+  // logout function
   const handleLogout = () => {
     setIsLoggedIn(false);
     window.localStorage.removeItem("token");
@@ -64,6 +68,8 @@ function App() {
     window.localStorage.removeItem("isLoggedIn");
   };
 
+  // routers function for handling the login correctly
+  //  and not show the whole page when a user is not connected
   const renderRouterPaths = () => {
     if (!isLoggedIn) {
       return (
@@ -91,6 +97,7 @@ function App() {
     }
   };
 
+  // render top header route with the sidebar
   const renderTopHeader = () => {
     if (isLoggedIn) {
       return <SideDrawer isLoggedIn={isLoggedIn} onLogout={handleLogout} />;
