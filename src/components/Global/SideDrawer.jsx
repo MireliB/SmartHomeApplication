@@ -64,6 +64,7 @@ export default function SideDrawer({ onLogout, isLoggedIn }) {
       {isLoggedIn && (
         <Box
           sx={{
+            height: "100vh",
             "& .pro-sidebar-inner, & .pro-icon-wrapper": {
               background: `${colors.primary[400]} !important`,
             },
@@ -73,7 +74,7 @@ export default function SideDrawer({ onLogout, isLoggedIn }) {
           }}
         >
           <CssBaseline />
-          <ProSidebar collapsed={isCollapsed}>
+          <ProSidebar collapsed={isCollapsed} style={{ height: "100%" }}>
             <Menu iconShape="square">
               <MenuItem
                 onClick={collapsedHandler}

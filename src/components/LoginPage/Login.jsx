@@ -45,13 +45,19 @@ export default function Login({ isLoggedIn, setIsLoggedIn, onLogin }) {
     } catch (err) {
       console.error("Login error:", err); // Logging the error
       if (err.response) {
-        setErrorMsg(err.response.data.message || "Failed to login. Please try again.");
+        setErrorMsg(
+          err.response.data.message || "Failed to login. Please try again."
+        );
       } else if (err.request) {
         setErrorMsg("No response from server. Please check your connection.");
       } else {
         setErrorMsg("An error occurred. Please try again.");
       }
     }
+  };
+
+  const navigateToSignUp = () => {
+    nav("/signup");
   };
 
   return (
@@ -90,6 +96,19 @@ export default function Login({ isLoggedIn, setIsLoggedIn, onLogin }) {
           {errorMsg}
         </Typography>
       )}
+      <Box mt={2}>
+        <Typography variant="body2">
+          Don't have an account?{" "}
+          <Link
+            component="button"
+            sx={{ color: "white" }}
+            variant="body2"
+            onClick={navigateToSignUp}
+          >
+            Sign Up
+          </Link>
+        </Typography>
+      </Box>
     </Box>
   );
 }

@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ColorModeContext, useMode } from "./Theme.js";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import SideDrawer from "./components/Global/SideDrawer.jsx";
 import Dashboard from "./components/Dashboard/Dashboard.jsx";
@@ -81,6 +76,7 @@ function App() {
     } else {
       return (
         <>
+          <Route path="*" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/roomsPage" element={<RoomsPage />} />
@@ -90,7 +86,6 @@ function App() {
           <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Navigate to="/dashboard" />} />
         </>
       );
     }
@@ -98,17 +93,11 @@ function App() {
 
   const renderTopHeader = () => {
     if (isLoggedIn) {
-      return (
-        <SideDrawer
-          isSidebar={isSidebarOpen}
-          handleLogout={handleLogout}
-        />
-      );
+      return <SideDrawer isLoggedIn={isLoggedIn} onLogout={handleLogout} />;
     } else {
       return null;
     }
   };
-
   return (
     <BrowserRouter>
       <ColorModeContext.Provider value={colorMode}>
