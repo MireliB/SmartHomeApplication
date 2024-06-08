@@ -82,7 +82,6 @@ function App() {
     } else {
       return (
         <>
-          <Route path="*" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/roomsPage" element={<RoomsPage />} />
@@ -114,10 +113,7 @@ function App() {
             {renderTopHeader()}
             <main className="content" style={{ flex: 1 }}>
               {isLoggedIn && <Top setIsSidebar={setIsSidebarOpen} />}
-              <Routes location={initialLocation} onUpdate={storeLocation}>
-                <Route path="/" element={<Homepage />} />
-                {renderRouterPaths()}
-              </Routes>
+              <Routes>{renderRouterPaths()}</Routes>
             </main>
           </div>
         </ThemeProvider>

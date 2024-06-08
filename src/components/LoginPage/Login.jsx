@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { tokens } from "../../Theme";
 import axios from "axios";
 
-// the login page is not working correctly right now need to check what cause's the problem
 export default function Login({ isLoggedIn, setIsLoggedIn, onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
