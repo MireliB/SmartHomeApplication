@@ -29,6 +29,10 @@ function App() {
     return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
   });
 
+  const [userEmail, setUserEmail] = useState(() => {
+    const storedUserEmail = window.localStorage.getItem("userEmail");
+    return storedUserEmail || "";
+  });
   // a useEffect for user token
   useEffect(() => {
     const token = window.localStorage.getItem("token");
@@ -39,12 +43,10 @@ function App() {
 
       if (loginTime && Date.now() - loginTime < expirationTime) {
         setIsLoggedIn(true);
+        setUserEmail(window.localStorage.getItem("userEmail"));
         // if im not logged in it will remove the token the time and the login
       } else {
-        setIsLoggedIn(false);
-        window.localStorage.removeItem("token");
-        window.localStorage.removeItem("loginTime");
-        window.localStorage.removeItem("isLoggedIn");
+        handleLogout();
       }
     }
   }, []);
@@ -54,10 +56,12 @@ function App() {
     window.localStorage.setItem("location", JSON.stringify(location));
   };
 
-  const loginHandler = () => {
+  const loginHandler = (email) => {
     setIsLoggedIn(true);
     window.localStorage.setItem("loginTime", JSON.stringify(Date.now()));
     window.localStorage.setItem("isLoggedIn", JSON.stringify(true));
+    window.localStorage.setItem("userEmail", email);
+    setUserEmail(email);
   };
 
   // logout function
@@ -66,6 +70,7 @@ function App() {
     window.localStorage.removeItem("token");
     window.localStorage.removeItem("loginTime");
     window.localStorage.removeItem("isLoggedIn");
+    window.localStorage.removeItem("userEmail");
   };
 
   // routers function for handling the login correctly

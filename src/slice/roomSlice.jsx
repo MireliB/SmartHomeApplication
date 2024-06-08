@@ -2,7 +2,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  rooms: [],
+  rooms: JSON.parse(window.localStorage.getItem("rooms")) || {},
 };
 
 const findRoomByIndexName = (rooms, roomName) => {

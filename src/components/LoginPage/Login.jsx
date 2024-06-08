@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { tokens } from "../../Theme";
 import axios from "axios";
 
-export default function Login({ isLoggedIn, setIsLoggedIn, onLogin }) {
+export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -27,16 +27,22 @@ export default function Login({ isLoggedIn, setIsLoggedIn, onLogin }) {
   // almost works
   const loginHandler = async (e) => {
     e.preventDefault();
+
     try {
       const response = await axios.post("http://localhost:4000/login", {
         email,
         password,
       });
+
       console.log("Login response:", response.data); // Logging the response
+
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("loginTime", JSON.stringify(Date.now()));
-        onLogin();
+        localStorage.setItem("userEmail", email);
+
+        onLogin(email);
+
         nav("/dashboard");
       } else {
         setErrorMsg(response.data.message);
