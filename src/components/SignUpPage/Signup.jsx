@@ -97,7 +97,7 @@ export default function Signup() {
           sx={{ color: "white", mt: 2 }}
           type="submit"
         >
-          Sign Up
+          SIGN UP
         </Button>
       </Box>
       {message && (

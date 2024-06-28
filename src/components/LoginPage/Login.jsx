@@ -1,119 +1,118 @@
-import React, { useState } from "react";
-import { useTheme } from "@emotion/react";
-import { Box, Button, Input, Link, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import React, { Component } from "react";
+import { Box, Button, Input, Link, Typography, withTheme } from "@mui/material";
 import { tokens } from "../../Theme";
 import axios from "axios";
 
-export default function Login({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const nav = useNavigate();
-
-  const theme = useTheme();
-
-  const colors = tokens(theme.palette.mode);
-
-  const emailChangeHandler = (e) => {
-    setEmail(e.target.value);
+class Login extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "",
+      password: "",
+      errorMsg: "",
+    };
+  }
+  emailChangeHandler = (e) => {
+    this.setState({ email: e.target.value });
+  };
+  passwordChangeHandler = (e) => {
+    this.setState({ password: e.target.value });
   };
 
-  const passwordChangeHandler = (e) => {
-    setPassword(e.target.value);
-  };
-
-  // almost works
-  const loginHandler = async (e) => {
+  loginHandler = async (e) => {
     e.preventDefault();
+    const { email, password } = this.state;
 
     try {
       const response = await axios.post("http://localhost:4000/login", {
         email,
         password,
       });
-
-      console.log("Login response:", response.data); // Logging the response
-
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("loginTime", JSON.stringify(Date.now()));
         localStorage.setItem("userEmail", email);
 
-        onLogin(email);
-
-        nav("/dashboard");
+        this.props.onLogin(email);
+        this.props.history.push("/dashboard");
       } else {
-        setErrorMsg(response.data.message);
+        this.setState({ errorMsg: response.data.message });
       }
     } catch (err) {
-      console.error("Login error:", err); // Logging the error
       if (err.response) {
-        setErrorMsg(
-          err.response.data.message || "Failed to login. Please try again."
-        );
+        this.setState({
+          errorMsg:
+            err.response.data.message || "Failed to login. Please try again.",
+        });
       } else if (err.request) {
-        setErrorMsg("No response from server. Please check your connection.");
+        this.setState({
+          errorMsg: "No response from server. Please check your connection.",
+        });
       } else {
-        setErrorMsg("An error occurred. Please try again.");
+        this.setState({ errorMsg: "An error occurred. Please try again." });
       }
     }
   };
 
-  const navigateToSignUp = () => {
-    nav("/signup");
+  navigateToSignUp = () => {
+    this.props.history.push("signup");
   };
+  render() {
+    const { theme } = this.props;
+    const colors = tokens(theme.palette.mode);
 
-  return (
-    <Box p={3} bgcolor={"background.paper"} boxShadow={1} borderRadius={2}>
-      <Typography variant="h3">Login</Typography>
-      <Box component={"form"} onSubmit={loginHandler}>
-        <Box>
-          <Typography variant="h5">Email:</Typography>
-          <Input
-            type="email"
-            value={email}
-            onChange={emailChangeHandler}
-            required
-          />
-        </Box>
-        <Box>
-          <Typography variant="h5">Password:</Typography>
-          <Input
-            type="password"
-            value={password}
-            onChange={passwordChangeHandler}
-            required
-          />
-        </Box>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ color: "white", mt: 2 }}
-          type="submit"
-        >
-          Login
-        </Button>
-      </Box>
-      {errorMsg && (
-        <Typography variant="body2" color="error" mt={2}>
-          {errorMsg}
-        </Typography>
-      )}
-      <Box mt={2}>
-        <Typography variant="body2">
-          Don't have an account?{" "}
-          <Link
-            component="button"
-            sx={{ color: "white" }}
-            variant="body2"
-            onClick={navigateToSignUp}
+    return (
+      <Box p={3} bgcolor={"background.paper"} boxShadow={1} borderRadius={2}>
+        <Typography variant="h3">Login</Typography>
+        <Box component={"form"} onSubmit={this.loginHandler}>
+          <Box>
+            <Typography variant="h5">Email:</Typography>
+            <Input
+              type="email"
+              value={this.state.email}
+              onChange={this.handleEmailChange}
+              required
+            />
+          </Box>
+          <Box>
+            <Typography variant="h5">Password:</Typography>
+            <Input
+              type="password"
+              value={this.state.password}
+              onChange={this.handlePasswordChange}
+              required
+            />
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ color: "white", mt: 2 }}
+            type="submit"
           >
-            Sign Up
-          </Link>
-        </Typography>
+            LOGIN
+          </Button>
+        </Box>
+        {this.state.errorMsg && (
+          <Typography variant="body2" color="error" mt={2}>
+            {this.state.errorMsg}
+          </Typography>
+        )}
+        <Box mt={2}>
+          <Typography variant="body2">
+            Don't have an account?{" "}
+            <Link
+              component="button"
+              sx={{ color: "white" }}
+              variant="body2"
+              onClick={this.navigateToSignUp}
+            >
+              SIGN UP
+            </Link>
+          </Typography>
+        </Box>
       </Box>
-    </Box>
-  );
+    );
+  }
 }
+
+export default withTheme(Login);

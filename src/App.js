@@ -16,65 +16,48 @@ import Device from "./components/RoomDevices/Device.jsx";
 import AboutUs from "./components/AboutUs/AboutUs.jsx";
 import Contacts from "./Scenes/Contacts.jsx";
 import Settings from "./components/Settings/Settings.jsx";
+import User from "./Models/User.js";
 
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const storedLocation = JSON.parse(window.localStorage.getItem("location"));
-  const initialLocation = storedLocation;
-
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    const storedIsLoggedIn = window.localStorage.getItem("isLoggedIn");
-    return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
+  const [user, setUser] = useState(() => {
+    const email = localStorage.getItem("userEmail");
+    return email ? new User(email) : null;
   });
 
-  const [userEmail, setUserEmail] = useState(() => {
-    const storedUserEmail = window.localStorage.getItem("userEmail");
-    return storedUserEmail || "";
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    user ? user.isLoggedIn() : false
+  );
+
   // a useEffect for user token
   useEffect(() => {
-    const token = window.localStorage.getItem("token");
-    if (token) {
-      // keeps the user logged in for 8 hours
-      const loginTime = JSON.parse(window.localStorage.getItem("loginTime"));
-      const expirationTime = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
-
-      if (loginTime && Date.now() - loginTime < expirationTime) {
-        setIsLoggedIn(true);
-        setUserEmail(window.localStorage.getItem("userEmail"));
-        // if im not logged in it will remove the token the time and the login
-      } else {
-        handleLogout();
-      }
+    if (user && user.isLoggedIn()) {
+      setIsLoggedIn(true);
+    } else {
+      handleLogout();
     }
-  }, []);
+  }, [user]);
 
-  const storeLocation = () => {
-    const location = window.location.pathname;
-    window.localStorage.setItem("location", JSON.stringify(location));
-  };
-
-  const loginHandler = (email) => {
+  const loginHandler = (email, token) => {
+    const newUser = new User(email);
+    newUser.login(token);
+    setUser(newUser);
     setIsLoggedIn(true);
-    window.localStorage.setItem("loginTime", JSON.stringify(Date.now()));
-    window.localStorage.setItem("isLoggedIn", JSON.stringify(true));
-    window.localStorage.setItem("userEmail", email);
-    setUserEmail(email);
   };
 
   // logout function
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    window.localStorage.removeItem("token");
-    window.localStorage.removeItem("loginTime");
-    window.localStorage.removeItem("isLoggedIn");
-    window.localStorage.removeItem("userEmail");
+    if (user) {
+      user.logout();
+      setUser(null);
+      setIsLoggedIn(false);
+    }
   };
 
-  // routers function for handling the login correctly
-  //  and not show the whole page when a user is not connected
+  // routers function for handling the login and not show the whole page when a user
+  // is not connected
   const renderRouterPaths = () => {
     if (!isLoggedIn) {
       return (
@@ -88,6 +71,7 @@ function App() {
       return (
         <>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/home" element={<Homepage />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/roomsPage" element={<RoomsPage />} />
           <Route path="/addRoom" element={<AddRoom />} />
