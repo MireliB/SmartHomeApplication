@@ -41,12 +41,15 @@ const userSchema = new mongoose.Schema({
 const roomSchema = new mongoose.Schema({
   name: { type: String, required: true },
   devices: [{ type: mongoose.Schema.Types.ObjectId, ref: "Device" }],
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
+// schema for room devices, includes name, status, room and user
 const deviceSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   status: { type: String, required: true },
   room: { type: mongoose.Schema.Types.ObjectId, ref: "Room" },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 // Models
@@ -74,7 +77,6 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
-
 app.post("/login", async (req, res) => {
   console.log("Received login request with body:", req.body); // Logging the request body
   const { email, password } = req.body;
@@ -86,7 +88,8 @@ app.post("/login", async (req, res) => {
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "8h" });
     res.json({ token });
@@ -114,11 +117,22 @@ const authenticate = (req, res, next) => {
 
 app.post("/room", authenticate, async (req, res) => {
   const { name } = req.body;
+  const userId = req.userId;
   try {
-    const newRoom = new Room({ name });
+    const newRoom = new Room({ name, user: userId });
     await newRoom.save();
     res.json(newRoom);
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/rooms", authenticate, async (req, res) => {
+  const userId = req.userId;
+  try {
+    const rooms = await Room.find({ user: userId }).populate("devices");
+    res.json(rooms);
+  } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -152,8 +166,10 @@ app.delete("/room/:id", authenticate, async (req, res) => {
 
 app.post("/device", authenticate, async (req, res) => {
   const { name, status, room } = req.body;
+  const userId = req.userId;
+
   try {
-    const newDevice = new Device({ name, status, room });
+    const newDevice = new Device({ name, status, room, user: userId });
     await newDevice.save();
 
     const associatedRoom = await Room.findById(room);
@@ -163,6 +179,16 @@ app.post("/device", authenticate, async (req, res) => {
     res.json(newDevice);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/devices", authenticate, async (req, res) => {
+  const userId = req.userId;
+  try {
+    const devices = await Device.find({ user: userId });
+    res.json(devices);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
   }
 });
 

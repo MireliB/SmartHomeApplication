@@ -1,16 +1,16 @@
-//utility function for creating redux slices
+// Utility function for creating Redux slices
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  rooms: JSON.parse(window.localStorage.getItem("rooms")) || {},
+  rooms: JSON.parse(window.localStorage.getItem("rooms")) || [],
 };
 
-const findRoomByIndexName = (rooms, roomName) => {
+const findRoomIndexByName = (rooms, roomName) => {
   return rooms.findIndex((room) => room.roomName === roomName);
 };
 
-const filteredRoomById = (room, roomId) => {
-  return room.rooms.filter((room) => room.roomId !== roomId);
+const filteredRoomsById = (rooms, roomId) => {
+  return rooms.filter((room) => room.roomId !== roomId);
 };
 
 const updateDevicesInRoom = (room, deviceId, updatedDevice) => {
@@ -31,20 +31,19 @@ export const roomSlice = createSlice({
     },
 
     deleteRoom: (state, action) => {
-      const { roomName, room } = action.payload;
-      const roomIndex = findRoomByIndexName(state.rooms, roomName);
+      const { roomName, roomId } = action.payload;
+      const roomIndex = findRoomIndexByName(state.rooms, roomName);
       if (roomIndex !== -1) {
-        const updateRooms = filteredRoomById(
-          state.rooms[roomIndex],
-          room.roomId
+        state.rooms[roomIndex].rooms = filteredRoomsById(
+          state.rooms[roomIndex].rooms,
+          roomId
         );
-        state.rooms[roomIndex].rooms = [...updateRooms];
       }
     },
 
     editRoom: (state, action) => {
       const { roomName, device } = action.payload;
-      const roomIndex = findRoomByIndexName(state.rooms, roomName);
+      const roomIndex = findRoomIndexByName(state.rooms, roomName);
       if (roomIndex !== -1) {
         state.rooms[roomIndex] = updateDevicesInRoom(
           state.rooms[roomIndex],
