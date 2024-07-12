@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import classes from "./Room.module.css";
 import Device from "../RoomDevices/Device";
-export default function Room({ checkedRooms, room }) {
+
+export default function Room({ room }) {
   const [devices, setDevices] = useState(room ? room.devices : []);
 
   // will be shown in every click by room
@@ -44,4 +45,3 @@ export default function Room({ checkedRooms, room }) {
     </div>
   );
 }
-// CONTINUE FROM HERE

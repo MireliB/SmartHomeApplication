@@ -1,109 +1,91 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addRoom } from "../../slice/roomSlice";
 import { Box, Button, Typography } from "@mui/material";
-import Header from "../Header";
-import { useTheme } from "@emotion/react";
-import { tokens } from "../../Theme";
-import { DataGrid } from "@mui/x-data-grid";
+import axios from "axios";
+import EmptyRoom from "./EmptyRoom";
 
 export default function RoomsPage() {
   const dispatch = useDispatch();
+  // const [showRoom, setShowRoom] = useState(false);
+  const [roomData, setRoomData] = useState([]);
   const { rooms } = useSelector((state) => state.rooms);
   const { devices } = useSelector((state) => state.devices);
   const nav = useNavigate();
-  const [showRoom, setShowRoom] = useState(false);
 
-  //separates to constant variable, mapped the exist rooms and its shown in the page
+  const token = localStorage.getItem("token");
+
   const roomsWithId = rooms.map((room, index) => ({ ...room, id: index + 1 }));
   const devicesWithId = devices.map((device, index) => ({
     ...device,
     id: index + 1,
   }));
-  // show room toggling
-  const showRoomHandler = () => {
-    setShowRoom((prev) => !prev);
+
+  const getRooms = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/rooms", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setRoomData(response.data);
+    } catch (err) {
+      console.error("Error Fetching rooms:", err);
+    }
   };
 
+  useEffect(() => {
+    if (token) {
+      getRooms();
+    }
+  }, [token]);
+
+  //separates to constant variable, mapped the exist rooms and its shown in the page
+  // show room toggling
+  // const showRoomHandler = () => {
+  //   setShowRoom((prev) => !prev);
+  // };
+
   return (
-    <div className="rooms-page-container">
+    <Box className="rooms-page-container">
       <EmptyRoom
-        toggle={() => nav("/addRoom")}
-        showRoomHandler={showRoomHandler}
-        showRoom={showRoom}
-        setShowRoom={setShowRoom}
+        onAddRoom={() => nav("/addRoom")}
+        // showRoomHandler={showRoomHandler}
+        // showRoom={showRoom}
+        // setShowRoom={setShowRoom}
         rooms={roomsWithId}
         devices={devicesWithId}
         dispatch={dispatch}
       />
-    </div>
-  );
-}
-
-function EmptyRoom({ toggle, setAddRoomIsOpen, dispatch, rooms, devices }) {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-
-  const columns = [
-    { field: "roomName", headerName: "Room Name", flex: 1 },
-    { field: "roomType", headerName: "Room Type", flex: 1 },
-    {
-      field: "devices",
-      headerName: "Devices",
-      flex: 1,
-      renderCell: ({ row }) => (
-        <Box
-          width={"60%"}
-          m={"0 auto"}
-          p={"5px"}
-          display={"flex"}
-          justifyContent={"center"}
-          backgroundColor={
-            row.access === "admin"
-              ? colors.greenAccent[600]
-              : colors.greenAccent[700]
-          }
-          borderRadius={"4px"}
-        ></Box>
-      ),
-      align: "left",
-    },
-  ];
-
-  return (
-    <Box m={"2dvh"}>
-      <Header
-        title={"Welcome to the Rooms Page!"}
-        subtitle={
-          "This space allows you to create and manage rooms, providing you with control over various technologies within your home."
-        }
-      />
-      <Box
-        m={"40px 0 0 0 "}
-        height={"75vh"}
-        sx={{
-          "& .MuiDataGrid-root": { border: "none" },
-          "& .MuiDataGrid-cell": { borderBottom: "none" },
-          "& .MuiDataGrid-columnHeader": {
-            backgroundColor: colors.blueAccent[700],
-            color: colors.grey[100],
-          },
-        }}
-      >
-        <DataGrid rows={rooms} columns={columns} devices={devices} />
-      </Box>
-      <Button
-        variant="contained"
-        style={{ marginTop: "2dvh" }}
-        onClick={toggle}
-      >
-        + Add A Room
-      </Button>
     </Box>
   );
 }
 
 //TODO
-//CREATE A ROOM COMPONENT THAT SHOWS EVERY SINGLE ROOM SEPARATLY,
-//  (ROOM DETAILS LIKE NAME TYPE AND IN THE ROOM CHOSE A DEVICE CONTROLLER)
+// connect the room details to room component - add a roomCard to hold the room
+// and when its clicked it will show the roomDetails
+export function RoomPanel({ room, onClick }) {
+  return (
+    <Box
+      onClick={() => onClick(room)}
+      sx={{
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        padding: "16px",
+        margin: "8px",
+        cursor: "pointer",
+        backgroundColor: "#f9f9f9",
+      }}
+    >
+      <Typography variant="h6">{room.roomName}</Typography>
+      <Typography variant="subtitle1">{room.roomType}</Typography>
+      <Button
+        variant="contained"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick(room);
+        }}
+      ></Button>
+    </Box>
+  );
+}

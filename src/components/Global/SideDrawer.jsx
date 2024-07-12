@@ -12,6 +12,7 @@ import {
   Notifications as NotificationsIcon,
   ExitToApp as LogoutIcon,
 } from "@mui/icons-material";
+
 import {
   Box,
   CssBaseline,
@@ -19,12 +20,13 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../Theme";
 import { useNavigate } from "react-router-dom";
 
 const navigationItems = [
-  { path: "/", name: "Home", icon: <HomeIcon /> },
+  { path: "/home", name: "Home", icon: <HomeIcon /> },
   { path: "/dashboard", name: "Dashboard", icon: <DashboardIcon /> },
   { path: "/roomsPage", name: "Rooms", icon: <RoomIcon /> },
   { path: "/aboutUs", name: "About", icon: <InfoIcon /> },
@@ -50,6 +52,9 @@ export default function SideDrawer({ onLogout, isLoggedIn }) {
     setIsCollapsed(!isCollapsed);
   };
 
+  const handleMouseEnter = (name) => setSelected(name);
+  const handleMouseLeave = () => setSelected("");
+
   const handleLogOut = (path) => {
     if (path === "/logout") {
       onLogout();
@@ -74,7 +79,7 @@ export default function SideDrawer({ onLogout, isLoggedIn }) {
           }}
         >
           <CssBaseline />
-          <ProSidebar collapsed={isCollapsed} style={{ height: "100%" }}>
+          <ProSidebar collapsed={isCollapsed}>
             <Menu iconShape="square">
               <MenuItem
                 onClick={collapsedHandler}
@@ -106,17 +111,17 @@ export default function SideDrawer({ onLogout, isLoggedIn }) {
                 textAlign="center"
                 paddingLeft={isCollapsed ? undefined : "10%"}
               >
-                {navigationItems.map((item, index) => (
+                {navigationItems.map(({ path, name, icon }, index) => (
                   <MenuItem
                     key={index}
-                    icon={item.icon}
-                    onClick={() => handleLogOut(item.path)}
-                    active={selected === item.name}
-                    onMouseEnter={() => setSelected(item.name)}
-                    onMouseLeave={() => setSelected("")}
+                    icon={icon}
+                    onClick={() => handleLogOut(path)}
+                    active={selected === name}
+                    onMouseEnter={() => handleMouseEnter(name)}
+                    onMouseLeave={handleMouseLeave}
                     style={{ color: colors.grey[100] }}
                   >
-                    {item.name}
+                    {name}
                   </MenuItem>
                 ))}
               </Box>

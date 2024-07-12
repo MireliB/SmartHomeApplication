@@ -16,8 +16,7 @@ export default function AddRoom({ showRoomHandler, showRoom, setShowRoom }) {
   const [roomType, setRoomType] = useState("");
 
   const [deviceName, setDeviceName] = useState("");
-  // use this for existing rooms
-  // https://smart-home-application-4447e-default-rtdb.firebaseio.com/
+
   const roomNameChangeHandler = (e) => {
     setRoomName(e.target.value);
   };
@@ -27,23 +26,24 @@ export default function AddRoom({ showRoomHandler, showRoom, setShowRoom }) {
   };
 
   const addRoomHandler = () => {
-    const newRoom = {
-      roomName: roomName,
-      roomType: roomType,
-      rooms: [],
-    };
-    const newDevice = {
-      deviceName: deviceName,
-      devices: [],
-    };
     //WORKS!
     if (roomName && roomType) {
+      const newRoom = {
+        roomName: roomName,
+        roomType: roomType,
+        devices: [],
+      };
       dispatch(addRoom(newRoom));
+
+      if (deviceName) {
+        const newDevice = {
+          deviceName,
+          roomName,
+        };
+        dispatch(AddDevices(newDevice));
+      }
     }
     // almost works
-    if (deviceName) {
-      dispatch(AddDevices(newDevice));
-    }
     setRoomName("");
     setRoomType("");
     setDeviceName("");
