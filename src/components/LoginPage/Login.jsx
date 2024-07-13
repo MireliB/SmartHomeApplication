@@ -24,10 +24,8 @@ export default function Login({ onLogin }) {
     setPassword(e.target.value);
   };
 
-  // almost works
   const loginHandler = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.post("http://localhost:4000/login", {
         email,
@@ -42,7 +40,6 @@ export default function Login({ onLogin }) {
         localStorage.setItem("userEmail", email);
 
         onLogin(email);
-
         nav("/dashboard");
       } else {
         setErrorMsg(response.data.message);
@@ -50,23 +47,32 @@ export default function Login({ onLogin }) {
     } catch (err) {
       console.error("Login error:", err); // Logging the error
       if (err.response) {
-        setErrorMsg(
-          err.response.data.message || "Failed to login. Please try again."
-        );
-      } else if (err.request) {
-        setErrorMsg("No response from server. Please check your connection.");
+        setErrorMsg(err.response.data.message);
       } else {
-        setErrorMsg("An error occurred. Please try again.");
+        setErrorMsg("Something went wrong, please try again.");
       }
     }
   };
-
   const navigateToSignUp = () => {
     nav("/signup");
   };
 
   return (
-    <Box p={3} bgcolor={"background.paper"} boxShadow={1} borderRadius={2}>
+    <Box
+      sx={{
+        backgroundColor: colors.blueAccent[600],
+        borderRadius: theme.shape.borderRadius,
+        boxShadow: theme.shadows[2],
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: theme.spacing(3),
+        maxWidth: 400,
+        margin: "0 auto",
+        marginTop: theme.spacing(5),
+      }}
+    >
       <Typography variant="h3">Login</Typography>
       <Box component={"form"} onSubmit={loginHandler}>
         <Box>

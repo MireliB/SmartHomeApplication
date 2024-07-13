@@ -7,7 +7,7 @@ import EmptyRoom from "./EmptyRoom";
 
 export default function RoomsPage() {
   const dispatch = useDispatch();
-  // const [showRoom, setShowRoom] = useState(false);
+  const [showRoom, setShowRoom] = useState(false);
   const [roomData, setRoomData] = useState([]);
   const { rooms } = useSelector((state) => state.rooms);
   const { devices } = useSelector((state) => state.devices);
@@ -42,17 +42,17 @@ export default function RoomsPage() {
 
   //separates to constant variable, mapped the exist rooms and its shown in the page
   // show room toggling
-  // const showRoomHandler = () => {
-  //   setShowRoom((prev) => !prev);
-  // };
+  const showRoomHandler = () => {
+    setShowRoom((prev) => !prev);
+  };
 
   return (
     <Box className="rooms-page-container">
       <EmptyRoom
         onAddRoom={() => nav("/addRoom")}
-        // showRoomHandler={showRoomHandler}
-        // showRoom={showRoom}
-        // setShowRoom={setShowRoom}
+        showRoomHandler={showRoomHandler}
+        showRoom={showRoom}
+        setShowRoom={setShowRoom}
         rooms={roomsWithId}
         devices={devicesWithId}
         dispatch={dispatch}

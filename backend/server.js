@@ -60,6 +60,7 @@ const Device = mongoose.model("Device", deviceSchema);
 // Routes
 app.post("/signUp", async (req, res) => {
   const { email, password } = req.body;
+  console.log("signUp request body:", req.body); // Debug log
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -78,8 +79,9 @@ app.post("/signUp", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  console.log("Received login request with body:", req.body); // Logging the request body
   const { email, password } = req.body;
+  console.log("login request body:", req.body); // Debug log
+
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
@@ -88,8 +90,9 @@ app.post("/login", async (req, res) => {
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
+    }
 
     const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "8h" });
     res.json({ token });
@@ -127,7 +130,7 @@ app.post("/room", authenticate, async (req, res) => {
   }
 });
 
-app.post("/rooms", authenticate, async (req, res) => {
+app.get("/rooms", authenticate, async (req, res) => {
   const userId = req.userId;
   try {
     const rooms = await Room.find({ user: userId }).populate("devices");
