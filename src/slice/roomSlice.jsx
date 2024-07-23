@@ -2,7 +2,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  rooms: JSON.parse(window.localStorage.getItem("rooms")) || [],
+  rooms: [],
 };
 
 const findRoomIndexByName = (rooms, roomName) => {
@@ -27,12 +27,18 @@ export const roomSlice = createSlice({
   initialState,
   reducers: {
     addRoom: (state, action) => {
+      console.log("Adding rooms", action.payload);
       state.rooms.push(action.payload);
+    },
+    setRooms: (state, action) => {
+      state.rooms = action.payload;
     },
 
     deleteRoom: (state, action) => {
       const { roomName, roomId } = action.payload;
+
       const roomIndex = findRoomIndexByName(state.rooms, roomName);
+
       if (roomIndex !== -1) {
         state.rooms[roomIndex].rooms = filteredRoomsById(
           state.rooms[roomIndex].rooms,
@@ -43,7 +49,9 @@ export const roomSlice = createSlice({
 
     editRoom: (state, action) => {
       const { roomName, device } = action.payload;
+
       const roomIndex = findRoomIndexByName(state.rooms, roomName);
+
       if (roomIndex !== -1) {
         state.rooms[roomIndex] = updateDevicesInRoom(
           state.rooms[roomIndex],
@@ -55,6 +63,6 @@ export const roomSlice = createSlice({
   },
 });
 
-export const { addRoom, deleteRoom, editRoom } = roomSlice.actions;
+export const { setRooms, addRoom, deleteRoom, editRoom } = roomSlice.actions;
 
 export default roomSlice.reducer;

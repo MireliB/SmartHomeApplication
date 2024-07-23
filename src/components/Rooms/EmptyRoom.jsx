@@ -1,42 +1,39 @@
 import { useTheme } from "@emotion/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { tokens } from "../../Theme";
 import { Box, Button } from "@mui/material";
 import Header from "../Header";
 import { DataGrid } from "@mui/x-data-grid";
+import { useSelector } from "react-redux";
 
-export default function EmptyRoom({
-  onAddRoom,
-  rooms,
-  devices,
-  showRoomHandler,
-  showRoom,
-  dispatch,
-}) {
+export default function EmptyRoom({ onAddRoom }) {
+  const { rooms } = useSelector((state) => state.rooms);
+  const { devices } = useSelector((state) => state.devices);
+  useEffect(() => {
+    console.log("Rooms: ", rooms);
+    console.log("Devices: ", devices);
+  });
+
+  const rows = Array.isArray(rooms)
+    ? rooms.map((room, index) => ({
+        id: room.id || index + 1,
+        roomName: room.roomName || "Unknown Name",
+        roomType: room.roomType || "Unknown Type",
+        devices: Array.isArray(devices)
+          ? devices
+              .filter((device) => device.roomId === room._id)
+              .map((device) => device.deviceName)
+              .join(", ")
+          : "No devices",
+        access: room.access || "Unknown Access",
+      }))
+    : [];
+
   const columns = [
     { field: "roomName", headerName: "Room Name", flex: 1 },
     { field: "roomType", headerName: "Room Type", flex: 1 },
-    {
-      field: "devices",
-      headerName: "Devices",
-      flex: 1,
-      renderCell: ({ row }) => (
-        <Box
-          width={"60%"}
-          m={"0 auto"}
-          p={"5px"}
-          display={"flex"}
-          justifyContent={"center"}
-          backgroundColor={
-            row.access === "admin"
-              ? colors.greenAccent[600]
-              : colors.greenAccent[700]
-          }
-          borderRadius={"4px"}
-        ></Box>
-      ),
-      align: "left",
-    },
+    { field: "devices", headerName: "Devices", flex: 1 },
+    { field: "access", headerName: "Access", flex: 1 },
   ];
 
   const theme = useTheme();
@@ -62,7 +59,7 @@ export default function EmptyRoom({
           },
         }}
       >
-        <DataGrid rows={rooms} columns={columns} devices={devices} />
+        <DataGrid rows={rows} columns={columns} devices={devices} />
       </Box>
       <Button
         variant="contained"

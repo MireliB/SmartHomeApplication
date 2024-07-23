@@ -9,22 +9,18 @@ import AddDevices from "../RoomDevices/AddDevices";
 export default function AddRoom({ showRoomHandler, showRoom, setShowRoom }) {
   const nav = useNavigate();
   const dispatch = useDispatch();
-  const { rooms } = useSelector((state) => state.rooms);
-  const { devices } = useSelector((state) => state.devices);
+  // const { rooms } = useSelector((state) => state.rooms);
+  // const { devices } = useSelector((state) => state.devices);
 
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("");
-
   const [deviceName, setDeviceName] = useState("");
 
-  const roomNameChangeHandler = (e) => {
-    setRoomName(e.target.value);
-  };
+  // const [deviceName, setDeviceName] = useState("");
 
-  const roomTypeChangeHandler = (e) => {
-    setRoomType(e.target.value);
-  };
-
+  const roomNameChangeHandler = (e) => setRoomName(e.target.value);
+  const roomTypeChangeHandler = (e) => setRoomType(e.target.value);
+  const deviceChangeHandler = (e) => setDeviceName(e.target.value);
   const addRoomHandler = () => {
     //WORKS!
     if (roomName && roomType) {
@@ -47,10 +43,6 @@ export default function AddRoom({ showRoomHandler, showRoom, setShowRoom }) {
     setRoomName("");
     setRoomType("");
     setDeviceName("");
-  };
-
-  const deviceChangeHandler = (e) => {
-    setDeviceName(e.target.value);
   };
 
   // http requests - help to communicate from frontend to backend

@@ -1,4 +1,3 @@
-//utility function for creating redux slices
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -8,9 +7,6 @@ const initialState = {
 const findDeviceByIndexName = (device, deviceName) => {
   return device.findIndex((device) => device.deviceName === deviceName);
 };
-
-// filteres out the device from specific id from room.
-// devices array, returns an array with filtered devices
 
 const filteredDeviceFromRoom = (room, deviceId) => {
   return room.devices.filter((device) => device.deviceId !== deviceId);
@@ -25,14 +21,16 @@ const updateDevicesInRoom = (device, deviceId, updatedDevice) => {
   };
 };
 
-export const deviceSlice = createSlice({
+const deviceSlice = createSlice({
   name: "devices",
   initialState,
   reducers: {
     addDevice: (state, action) => {
       state.devices.push(action.payload);
     },
-
+    setDevices: (state, action) => {
+      state.devices = action.payload;
+    },
     deleteDevice: (state, action) => {
       const { deviceName, device } = action.payload;
       const deviceIndex = findDeviceByIndexName(state.devices, deviceName);
@@ -59,6 +57,7 @@ export const deviceSlice = createSlice({
   },
 });
 
-export const { addDevice, deleteDevices, editDevice } = deviceSlice.actions;
+export const { setDevices, addDevice, deleteDevices, editDevice } =
+  deviceSlice.actions;
 
 export default deviceSlice.reducer;
