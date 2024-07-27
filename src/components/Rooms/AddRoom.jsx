@@ -1,69 +1,71 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import classes from "./AddRoom.module.css";
-import { addRoom, editRoom, deleteRoom } from "../../slice/roomSlice";
-import { Box, Button, Input, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import Header from "../Header";
-import AddDevices from "../RoomDevices/AddDevices";
-export default function AddRoom({ showRoomHandler, showRoom, setShowRoom }) {
-  const nav = useNavigate();
-  const dispatch = useDispatch();
-  // const { rooms } = useSelector((state) => state.rooms);
-  // const { devices } = useSelector((state) => state.devices);
 
+import Header from "../Header";
+
+import { Box, Button, Input, Typography } from "@mui/material";
+
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+export default function AddRoom() {
+  const nav = useNavigate();
+
+  const token = localStorage.getItem("token");
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("");
   const [deviceName, setDeviceName] = useState("");
 
-  // const [deviceName, setDeviceName] = useState("");
-
   const roomNameChangeHandler = (e) => setRoomName(e.target.value);
   const roomTypeChangeHandler = (e) => setRoomType(e.target.value);
   const deviceChangeHandler = (e) => setDeviceName(e.target.value);
-  const addRoomHandler = () => {
-    //WORKS!
-    if (roomName && roomType) {
-      const newRoom = {
-        roomName: roomName,
-        roomType: roomType,
-        devices: [],
-      };
-      dispatch(addRoom(newRoom));
 
-      if (deviceName) {
-        const newDevice = {
-          deviceName,
-          roomName,
-        };
-        dispatch(AddDevices(newDevice));
+  const addRoomHandler = async () => {
+    if (roomName && roomType) {
+      try {
+        const newRoom = { roomName, roomType }; // Adjusted for backend schema
+        const roomResponse = await axios.post(
+          "http://localhost:4000/room",
+          newRoom,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (deviceName) {
+          const newDevice = {
+            name: deviceName,
+            status: "off", // Assuming a default status, adjust as needed
+            room: roomResponse.data._id,
+          };
+          await axios.post("http://localhost:4000/device", newDevice, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        }
+        nav("/roomsPage");
+      } catch (err) {
+        console.error("Error adding room and device:", err);
       }
     }
-    // almost works
-    setRoomName("");
-    setRoomType("");
-    setDeviceName("");
   };
 
-  // http requests - help to communicate from frontend to backend
   return (
     <Box m={2}>
       <Header
         title="Add Room"
         subtitle="You Can Create a Room and Choose a Type of Room"
       />
-      <Typography>
-        Room Name <br />
-      </Typography>
+      <Typography>Room Name</Typography>
       <Input
         type="text"
         placeholder="Room Name"
         value={roomName}
         onChange={roomNameChangeHandler}
       />
-      <Typography>
-        Room Type <br />
-      </Typography>
+      <Typography>Room Type</Typography>
       <Input
         type="text"
         placeholder="Room Type"

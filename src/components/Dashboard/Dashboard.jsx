@@ -12,15 +12,19 @@ import StatBox from "../StatBox";
 export default function Dashboard({ isLoggedIn }) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { rooms } = useSelector((state) => state.rooms);
+  const { devices } = useSelector((state) => state.devices);
   const latestRooms = rooms.slice(-3);
-
+  const latestDevices = devices.slice(-3);
   const handleShowRoomsPage = () => {
     navigate("/roomsPage");
   };
 
+  const deleteRoomHandler = (roomId) => {
+    dispatch(deleteRoom(roomId));
+  };
   return (
     <Box m={"2vh"}>
       <Box
@@ -66,7 +70,7 @@ export default function Dashboard({ isLoggedIn }) {
         >
           <StatBox
             title={"Rooms"}
-            subtitle={`Latest Rooms : ${latestRooms
+            subtitle={`Latest Rooms: ${latestRooms
               .map((room) => room.roomName)
               .join(", ")}`}
             icon={
@@ -77,7 +81,9 @@ export default function Dashboard({ isLoggedIn }) {
           ></StatBox>
           <StatBox
             title={"Devices"}
-            subtitle={"Used Devices"}
+            subtitle={`Latest Devices: ${latestDevices
+              .map((device) => device.name)
+              .join(", ")}`}
             icon={
               <DeviceIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "2.1vw" }}
@@ -115,8 +121,7 @@ export default function Dashboard({ isLoggedIn }) {
                   <Typography>
                     Room Name: {room.roomName}, RoomType: {room.roomType}
                     {/* TODO
-                      FIX THE DELETE BUTTON - SAYS ROOM IS UNDEFINED
-                    */}
+                      FIX THE DELETE BUTTON - SAYS ROOM IS UNDEFINED */}
                     {/* <button onClick={() => deleteRoomHandler(room.roomName)}>
                       DELETE
                     </button> */}

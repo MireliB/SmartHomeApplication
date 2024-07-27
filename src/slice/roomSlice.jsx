@@ -1,4 +1,3 @@
-// Utility function for creating Redux slices
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -13,11 +12,11 @@ const filteredRoomsById = (rooms, roomId) => {
   return rooms.filter((room) => room.roomId !== roomId);
 };
 
-const updateDevicesInRoom = (room, deviceId, updatedDevice) => {
+const updateRoom = (room, roomId, updatedRoom) => {
   return {
     ...room,
-    devices: room.devices.map((device) =>
-      device.deviceId === deviceId ? { ...device, ...updatedDevice } : device
+    rooms: room.rooms.map((room) =>
+      room.roomId === roomId ? { ...room, ...updatedRoom } : room
     ),
   };
 };
@@ -26,12 +25,11 @@ export const roomSlice = createSlice({
   name: "rooms",
   initialState,
   reducers: {
-    addRoom: (state, action) => {
-      console.log("Adding rooms", action.payload);
-      state.rooms.push(action.payload);
-    },
     setRooms: (state, action) => {
       state.rooms = action.payload;
+    },
+    addRoom: (state, action) => {
+      state.rooms.push(action.payload);
     },
 
     deleteRoom: (state, action) => {
@@ -48,15 +46,15 @@ export const roomSlice = createSlice({
     },
 
     editRoom: (state, action) => {
-      const { roomName, device } = action.payload;
+      const { roomName, device: room } = action.payload;
 
       const roomIndex = findRoomIndexByName(state.rooms, roomName);
 
       if (roomIndex !== -1) {
-        state.rooms[roomIndex] = updateDevicesInRoom(
+        state.rooms[roomIndex] = updateRoom(
           state.rooms[roomIndex],
-          device.deviceId,
-          device
+          room.deviceId,
+          room
         );
       }
     },

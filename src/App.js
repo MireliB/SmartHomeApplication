@@ -5,18 +5,19 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import SideDrawer from "./components/Global/SideDrawer.jsx";
 import Dashboard from "./components/Dashboard/Dashboard.jsx";
-import Top from "./components/Global/Top.jsx";
+import RoomDetails from "./components/Rooms/RoomDetails.jsx";
+import Settings from "./components/Settings/Settings.jsx";
+import RoomsPage from "./components/Rooms/RoomsPage.jsx";
+import Device from "./components/RoomDevices/Device.jsx";
+import Signup from "./components/SignUpPage/Signup.jsx";
+import AboutUs from "./components/AboutUs/AboutUs.jsx";
 import Homepage from "./components/Home/Homepage.jsx";
 import Login from "./components/LoginPage/Login.jsx";
-import Signup from "./components/SignUpPage/Signup.jsx";
-import RoomsPage from "./components/Rooms/RoomsPage.jsx";
 import AddRoom from "./components/Rooms/AddRoom.jsx";
 import Room from "./components/Rooms/Room.jsx";
-import Device from "./components/RoomDevices/Device.jsx";
-import AboutUs from "./components/AboutUs/AboutUs.jsx";
 import Contacts from "./Scenes/Contacts.jsx";
-import Settings from "./components/Settings/Settings.jsx";
-import RoomDetails from "./components/Rooms/RoomDetails.jsx";
+
+import Top from "./components/Global/Top.jsx";
 
 function App() {
   const [theme, colorMode] = useMode();

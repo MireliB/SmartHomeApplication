@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@emotion/react";
 import { Box, Button, Input, Link, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -26,32 +26,38 @@ export default function Login({ onLogin }) {
 
   const loginHandler = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:4000/login", {
-        email,
-        password,
-      });
 
-      console.log("Login response:", response.data); // Logging the response
+    fetch("http://localhost:4000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((data) => {
+            throw new Error(
+              data.message || "Failed to Login. Please try Again"
+            );
+          });
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Login Response: ", data);
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", data.token);
         localStorage.setItem("loginTime", JSON.stringify(Date.now()));
         localStorage.setItem("userEmail", email);
 
         onLogin(email);
         nav("/dashboard");
-      } else {
-        setErrorMsg(response.data.message);
-      }
-    } catch (err) {
-      console.error("Login error:", err); // Logging the error
-      if (err.response) {
-        setErrorMsg(err.response.data.message);
-      } else {
-        setErrorMsg("Something went wrong, please try again.");
-      }
-    }
+      })
+      .catch((err) => {
+        console.error("Login error:", err);
+        setErrorMsg(err.message || "Something went wrong, please try again");
+      });
   };
   const navigateToSignUp = () => {
     nav("/signup");

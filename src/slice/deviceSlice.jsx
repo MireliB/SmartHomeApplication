@@ -8,8 +8,8 @@ const findDeviceByIndexName = (device, deviceName) => {
   return device.findIndex((device) => device.deviceName === deviceName);
 };
 
-const filteredDeviceFromRoom = (room, deviceId) => {
-  return room.devices.filter((device) => device.deviceId !== deviceId);
+const filteredDeviceFromRoom = (device, deviceId) => {
+  return device.devices.filter((device) => device.deviceId !== deviceId);
 };
 
 const updateDevicesInRoom = (device, deviceId, updatedDevice) => {
@@ -25,11 +25,11 @@ const deviceSlice = createSlice({
   name: "devices",
   initialState,
   reducers: {
-    addDevice: (state, action) => {
-      state.devices.push(action.payload);
-    },
     setDevices: (state, action) => {
       state.devices = action.payload;
+    },
+    addDevice: (state, action) => {
+      state.devices.push(action.payload);
     },
     deleteDevice: (state, action) => {
       const { deviceName, device } = action.payload;

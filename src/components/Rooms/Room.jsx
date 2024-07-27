@@ -34,7 +34,6 @@ export default function Room({ room }) {
       <table>
         {devices.map((device, index) => (
           <Device
-            // need to add DeviceName to Slice
             isLast={index === devices.length - 1}
             key={"Device List" + device.deviceName}
             device={device}

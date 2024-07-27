@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema({
 
 const roomSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  roomType: { type: String, required: true }, // Added roomType to schema
   devices: [{ type: mongoose.Schema.Types.ObjectId, ref: "Device" }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
@@ -119,10 +120,13 @@ const authenticate = (req, res, next) => {
 };
 
 app.post("/room", authenticate, async (req, res) => {
-  const { name } = req.body;
+  const { roomName, roomType } = req.body;
   const userId = req.userId;
+  if (!roomName || !roomType) {
+    return res.status(400).json({ message: "Name and room type are required" });
+  }
   try {
-    const newRoom = new Room({ name, user: userId });
+    const newRoom = new Room({ name: roomName, roomType, user: userId });
     await newRoom.save();
     res.json(newRoom);
   } catch (error) {
