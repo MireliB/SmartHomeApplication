@@ -16,15 +16,16 @@ export default function Dashboard({ isLoggedIn }) {
   const navigate = useNavigate();
   const { rooms } = useSelector((state) => state.rooms);
   const { devices } = useSelector((state) => state.devices);
+
   const latestRooms = rooms.slice(-3);
   const latestDevices = devices.slice(-3);
   const handleShowRoomsPage = () => {
     navigate("/roomsPage");
   };
 
-  const deleteRoomHandler = (roomId) => {
-    dispatch(deleteRoom(roomId));
-  };
+  // const deleteRoomHandler = (roomId) => {
+  //   dispatch(deleteRoom(roomId));
+  // };
   return (
     <Box m={"2vh"}>
       <Box
@@ -71,7 +72,7 @@ export default function Dashboard({ isLoggedIn }) {
           <StatBox
             title={"Rooms"}
             subtitle={`Latest Rooms: ${latestRooms
-              .map((room) => room.roomName)
+              .map((room) => room.name)
               .join(", ")}`}
             icon={
               <RoomIcon
@@ -119,7 +120,7 @@ export default function Dashboard({ isLoggedIn }) {
               >
                 {rooms.map((room, index) => (
                   <Typography>
-                    Room Name: {room.roomName}, RoomType: {room.roomType}
+                    Room Name: {room.name}, RoomType: {room.roomType}
                     {/* TODO
                       FIX THE DELETE BUTTON - SAYS ROOM IS UNDEFINED */}
                     {/* <button onClick={() => deleteRoomHandler(room.roomName)}>
