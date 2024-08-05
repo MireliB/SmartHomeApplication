@@ -18,6 +18,7 @@ import Room from "./components/Rooms/Room.jsx";
 import Contacts from "./Scenes/Contacts.jsx";
 
 import Top from "./components/Global/Top.jsx";
+import Finances from "./components/Finances/Finances.jsx";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -88,6 +89,7 @@ function App() {
           <Route path="/device" element={<Device />} />
           <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/contacts" element={<Contacts />} />
+          <Route path="/finances" element={<Finances />} />
           <Route path="/settings" element={<Settings />} />
         </>
       );

@@ -95,7 +95,7 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
               .map((device) => (
                 <ListItem key={device._id}>
                   <Typography variant="body2" style={{ flexGrow: 1 }}>
-                    {device.name} -{" "}
+                    {device.name} - {" "}
                     {loading && deviceStatus[device._id] !== device.status ? (
                       <CircularProgress size={14} />
                     ) : (
