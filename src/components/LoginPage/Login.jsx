@@ -3,7 +3,6 @@ import { useTheme } from "@emotion/react";
 import { Box, Button, Input, Link, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { tokens } from "../../Theme";
-import axios from "axios";
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -59,6 +58,7 @@ export default function Login({ onLogin }) {
         setErrorMsg(err.message || "Something went wrong, please try again");
       });
   };
+
   const navigateToSignUp = () => {
     nav("/signup");
   };

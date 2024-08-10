@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteRoom } from "../../slice/roomSlice"; //going to be added for deleting rooms history
 import { tokens } from "../../Theme";
 import Header from "../Header";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
@@ -23,9 +22,6 @@ export default function Dashboard({ isLoggedIn }) {
     navigate("/roomsPage");
   };
 
-  // const deleteRoomHandler = (roomId) => {
-  //   dispatch(deleteRoom(roomId));
-  // };
   return (
     <Box m={"2vh"}>
       <Box

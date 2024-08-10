@@ -14,6 +14,7 @@ export default function AddRoom() {
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("");
   const [deviceName, setDeviceName] = useState("");
+  const [status, setStatus] = useState("OFF");
 
   const roomNameChangeHandler = (e) => setRoomName(e.target.value);
   const roomTypeChangeHandler = (e) => setRoomType(e.target.value);
@@ -36,7 +37,7 @@ export default function AddRoom() {
         if (deviceName) {
           const newDevice = {
             name: deviceName,
-            status: "off", // Assuming a default status, adjust as needed
+            status: status, // Assuming a default status, adjust as needed
             room: roomResponse.data._id,
           };
           await axios.post("http://localhost:4000/device", newDevice, {
@@ -45,6 +46,9 @@ export default function AddRoom() {
             },
           });
         }
+        setRoomName("");
+        setRoomType("");
+        setDeviceName("");
         nav("/roomsPage");
       } catch (err) {
         console.error("Error adding room and device:", err);
