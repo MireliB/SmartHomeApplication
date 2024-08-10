@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { Box, IconButton, Select, useTheme } from "@mui/material";
 import { ColorModeContext, tokens } from "../../Theme";
@@ -15,9 +14,6 @@ export default function Top() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-
-  // TODO -
-  // MOVE HERE THE LOGOUT FUNCTION
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>

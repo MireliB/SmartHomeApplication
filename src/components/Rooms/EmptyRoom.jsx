@@ -19,13 +19,18 @@ import Header from "../Header";
 
 export default function EmptyRoom({ onAddRoom, rooms, devices }) {
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [deviceStatus, setDeviceStatus] = useState(devices.reduce((acc, device) => {
-    acc[device._id] = device.status;
-    return acc;
-  }, {}));
 
-  const [message, setMessage] = useState({ show: false, text: "", color: "" })
+  const [loading, setLoading] = useState(false);
+
+  const [message, setMessage] = useState({ show: false, text: "", color: "" });
+
+  const [deviceStatus, setDeviceStatus] = useState(
+    devices.reduce((acc, device) => {
+      acc[device._id] = device.status;
+      return acc;
+    }, {})
+  );
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -63,7 +68,7 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
         "This space allows you to create and manage rooms, providing you with control over various technologies within your home."
       }
     />
-  )
+  );
 
   const renderRoomDetails = () => (
     <Box m={"40px 0 0 0"}>
@@ -95,7 +100,7 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
               .map((device) => (
                 <ListItem key={device._id}>
                   <Typography variant="body2" style={{ flexGrow: 1 }}>
-                    {device.name} - {" "}
+                    {device.name} -{" "}
                     {loading && deviceStatus[device._id] !== device.status ? (
                       <CircularProgress size={14} />
                     ) : (
@@ -120,8 +125,7 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
         </CardContent>
       </Card>
     </Box>
-
-  )
+  );
 
   const renderRoomList = () => (
     <Box m={"40px 0 0 0"} display="flex" flexWrap="wrap" gap={2}>
@@ -152,9 +156,7 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
                     device.room.toString() === room._id.toString()
                 )
                 .map((device) => (
-                  <ListItem key={device._id}>
-                    Device: {device.name}
-                  </ListItem>
+                  <ListItem key={device._id}>Device: {device.name}</ListItem>
                 )) || <ListItem>No devices</ListItem>}
             </List>
           </CardContent>
@@ -193,7 +195,6 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
 
   return (
     <Box m={"2dvh"}>
-
       {renderHeader()}
       {selectedRoom ? renderRoomDetails() : renderRoomList()}
       {!selectedRoom && renderAddRoomButton()}
