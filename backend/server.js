@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = 4000;
 
 app.use(bodyParser.json());
 app.use(
@@ -17,9 +17,10 @@ app.use(
   })
 );
 
+const mongoUri = "mongodb://localhost:27017/";
 // DB connection
 mongoose
-  .connect("mongodb://localhost:27017/", {
+  .connect(mongoUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -30,7 +31,7 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
-const jwtSecret = process.env.JWT_SECRET || "secret"; // Make sure JWT_SECRET is defined in your .env
+const jwtSecret = "secret"; // Make sure JWT_SECRET is defined in your .env
 
 // Schemas
 const userSchema = new mongoose.Schema({
@@ -40,7 +41,8 @@ const userSchema = new mongoose.Schema({
 
 const roomSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  roomType: { type: String, required: true }, // Added roomType to schema
+  // Added roomType to schema
+  roomType: { type: String, required: true },
   devices: [{ type: mongoose.Schema.Types.ObjectId, ref: "Device" }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
@@ -59,6 +61,7 @@ const Room = mongoose.model("Room", roomSchema);
 const Device = mongoose.model("Device", deviceSchema);
 
 // Routes
+
 app.post("/signUp", async (req, res) => {
   const { email, password } = req.body;
   console.log("signUp request body:", req.body); // Debug log

@@ -5,7 +5,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import SideDrawer from "./components/Global/SideDrawer.jsx";
 import Dashboard from "./components/Dashboard/Dashboard.jsx";
-import RoomDetails from "./components/Rooms/RoomDetails.jsx";
 import Settings from "./components/Settings/Settings.jsx";
 import RoomsPage from "./components/Rooms/RoomsPage.jsx";
 import Device from "./components/RoomDevices/Device.jsx";
@@ -16,7 +15,7 @@ import Login from "./components/LoginPage/Login.jsx";
 import AddRoom from "./components/Rooms/AddRoom.jsx";
 import Room from "./components/Rooms/Room.jsx";
 import Contacts from "./Scenes/Contacts.jsx";
-
+import EditRoom from "./components/Rooms/EditRoom.jsx";
 import Top from "./components/Global/Top.jsx";
 import Finances from "./components/Finances/Finances.jsx";
 
@@ -30,17 +29,20 @@ function App() {
   });
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     const storedIsLoggedIn = window.localStorage.getItem("isLoggedIn");
+
     return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
   });
 
   useEffect(() => {
     const token = window.localStorage.getItem("token");
+
     if (token) {
       const loginTime = JSON.parse(window.localStorage.getItem("loginTime"));
       const expirationTime = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
 
       if (loginTime && Date.now() - loginTime < expirationTime) {
         setIsLoggedIn(true);
+
         setUserEmail(window.localStorage.getItem("userEmail"));
       } else {
         handleLogout();
@@ -48,10 +50,11 @@ function App() {
     }
   }, []);
 
-  const loginHandler = (email, token) => {
+  const loginHandler = (email) => {
     window.localStorage.setItem("loginTime", JSON.stringify(Date.now()));
     window.localStorage.setItem("isLoggedIn", JSON.stringify(true));
     window.localStorage.setItem("userEmail", email);
+
     setUserEmail(email);
     setIsLoggedIn(true);
   };
@@ -59,6 +62,7 @@ function App() {
   // logout function
   const handleLogout = () => {
     setIsLoggedIn(false);
+
     window.localStorage.removeItem("token");
     window.localStorage.removeItem("loginTime");
     window.localStorage.removeItem("isLoggedIn");
@@ -82,7 +86,6 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/home" element={<Homepage />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/roomDetails" element={<RoomDetails />} />
           <Route path="/roomsPage" element={<RoomsPage />} />
           <Route path="/addRoom" element={<AddRoom />} />
           <Route path="/room" element={<Room />} />
@@ -91,6 +94,7 @@ function App() {
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/finances" element={<Finances />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/editRoom/:roomId" element={<EditRoom />} />
         </>
       );
     }
@@ -104,6 +108,7 @@ function App() {
       return null;
     }
   };
+
   return (
     <BrowserRouter>
       <ColorModeContext.Provider value={colorMode}>

@@ -16,8 +16,21 @@ export default function AddRoom() {
   const [deviceName, setDeviceName] = useState("");
   const [status, setStatus] = useState("OFF");
 
+  /**
+   TODO : 
+   fix the add room handler 
+   it adds the room but also shows an axios error 
+    
+   Error adding room and device: AxiosError 
+   {message: 'Request failed with status code 500', name: 'AxiosError',
+    code: 'ERR_BAD_RESPONSE',
+    config: {…}, request: XMLHttpRequest, …}
+   * **/
+
   const roomNameChangeHandler = (e) => setRoomName(e.target.value);
+
   const roomTypeChangeHandler = (e) => setRoomType(e.target.value);
+
   const deviceChangeHandler = (e) => setDeviceName(e.target.value);
 
   const addRoomHandler = async () => {

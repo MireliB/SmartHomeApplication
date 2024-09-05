@@ -10,17 +10,24 @@ import StatBox from "../StatBox";
 
 export default function Dashboard({ isLoggedIn }) {
   const theme = useTheme();
+
   const colors = tokens(theme.palette.mode);
-  const dispatch = useDispatch();
+
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
   const { rooms } = useSelector((state) => state.rooms);
   const { devices } = useSelector((state) => state.devices);
 
   const latestRooms = rooms.slice(-3);
   const latestDevices = devices.slice(-3);
+
   const handleShowRoomsPage = () => {
     navigate("/roomsPage");
   };
+
+  console.log("devices from redux", devices);
 
   return (
     <Box m={"2vh"}>
@@ -40,9 +47,9 @@ export default function Dashboard({ isLoggedIn }) {
             sx={{
               backgroundColor: colors.blueAccent[700],
               color: colors.grey[100],
-              fontSize: "0.8vw", // Using 1.4% of viewport width for font size
+              fontSize: "0.8vw",
               fontWeight: "bold",
-              padding: "1vh 1vw", // Using 1% of viewport height and 2% of viewport width for padding
+              padding: "1vh 1vw",
             }}
             onClick={handleShowRoomsPage}
           >
@@ -115,7 +122,7 @@ export default function Dashboard({ isLoggedIn }) {
                 color={colors.greenAccent[500]}
               >
                 {rooms.map((room, index) => (
-                  <Typography>
+                  <Typography key={index}>
                     Room Name: {room.name}, RoomType: {room.roomType}
                     {/* TODO
                       FIX THE DELETE BUTTON - SAYS ROOM IS UNDEFINED */}
@@ -124,6 +131,12 @@ export default function Dashboard({ isLoggedIn }) {
                     </button> */}
                   </Typography>
                 ))}
+
+                {/* {devices.map((device) => (
+                  <Typography>
+                    Device Name: {device.name}, Status: {device.status}
+                  </Typography>
+                ))} */}
               </Typography>
             </Box>
           </Box>

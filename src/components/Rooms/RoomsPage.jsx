@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import EmptyRoom from "./EmptyRoom";
+import { EmptyRoom } from "./EmptyRoom";
 
 import axios from "axios";
 

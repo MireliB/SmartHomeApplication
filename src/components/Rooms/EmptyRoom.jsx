@@ -1,6 +1,17 @@
-import { useTheme } from "@emotion/react";
 import React, { useState } from "react";
+
+import { useTheme } from "@emotion/react";
+import {
+  CheckCircleOutline,
+  ErrorOutline,
+  ExitToAppSharp,
+} from "@mui/icons-material";
+
+import { useDispatch } from "react-redux";
+
+import { useNavigate } from "react-router-dom";
 import { tokens } from "../../Theme";
+
 import {
   Box,
   Button,
@@ -13,46 +24,44 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-<<<<<<< Updated upstream
 
-import { CheckCircleOutline, ErrorOutline } from "@mui/icons-material";
-=======
+import { deleteRoom, editRoom } from "../../slice/roomSlice";
+
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-// going to add here the delete and edit redux functions
-import { deleteRoom, editRoom } from "../../slice/roomSlice";
->>>>>>> Stashed changes
-
 import Header from "../Header";
 
-export default function EmptyRoom({ onAddRoom, rooms, devices }) {
-  const [selectedRoom, setSelectedRoom] = useState(null);
+import axios from "axios";
 
+export function EmptyRoom({ onAddRoom, rooms, devices }) {
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [selectedDevice, setSelectedDevice] = useState(null);
 
   const [message, setMessage] = useState({ show: false, text: "", color: "" });
 
   const [deviceStatus, setDeviceStatus] = useState(
     devices.reduce((acc, device) => {
       acc[device._id] = device.status;
+
       return acc;
     }, {})
   );
+  const nav = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const handleRoomSelection = (room) => setSelectedRoom(room);
+
+  const handleBackToRooms = () => setSelectedRoom(null);
 
   const theme = useTheme();
+
   const colors = tokens(theme.palette.mode);
 
-  const roomCardHandler = (room) => {
-    setSelectedRoom(room);
-  };
-
-  const backToRoomsHandler = () => {
-    setSelectedRoom(null);
-  };
-
-<<<<<<< Updated upstream
-  const devicesToggleStatus = (device) => {
+  const toggleDeviceStatus = (device) => {
     setLoading(true);
 
     const newStatus = deviceStatus[device._id] === "off" ? "on" : "off";
@@ -63,12 +72,64 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
         ...prevState,
         [device._id]: newStatus,
       }));
+
       setMessage({
         show: true,
         text: `Device ${device.name} turned ${newStatus}`,
         color: newStatus === "on" ? "green" : "red",
       });
-    }, 1000); // Simulating network delay
+    }, 1000);
+  };
+
+  // doesnt work
+  const handleRoomEdit = (room) => {
+    if (!room || !room._id) return;
+
+    const updateDevice = { deviceId: selectedDevice };
+
+    dispatch(editRoom({ _id: room._id, device: updateDevice }));
+
+    setMessage({
+      show: true,
+      text: "Room edited successfully",
+      color: "green",
+    });
+
+    nav(`/editRoom/${room._id}`, { state: { room } });
+  };
+
+  // doesnt work
+  const handleDeleteRoom = async (roomId) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No Token found. Please log in again.");
+      return;
+    }
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:4000/room/${roomId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Room deleted successfully", response.data);
+
+      dispatch(deleteRoom({ id: roomId }));
+
+      setMessage({
+        show: true,
+        text: "Room deleted successfully",
+        color: "red",
+      });
+
+      handleBackToRooms();
+    } catch (err) {
+      console.error("Error Deleting Room:", err);
+    }
   };
 
   const renderHeader = () => (
@@ -81,8 +142,8 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
   );
 
   const renderRoomDetails = () => (
-    <Box m={"40px 0 0 0"}>
-      <Button onClick={backToRoomsHandler} style={{ color: "white" }}>
+    <Box m="40px 0 0 0">
+      <Button onClick={handleBackToRooms} style={{ color: "white" }}>
         Back to Rooms
       </Button>
       <Card
@@ -93,7 +154,7 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
         }}
       >
         <CardContent>
-          <Typography variant="h5" component="div">
+          <Typography variant="h5">
             Room Name: {selectedRoom.name || "No name specified"}
           </Typography>
           <Typography variant="body2">
@@ -117,14 +178,15 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
                       deviceStatus[device._id]
                     )}
                   </Typography>
+
                   <Button
-                    onClick={() => devicesToggleStatus(device)}
+                    onClick={() => toggleDeviceStatus(device)}
                     disabled={loading}
                     variant="contained"
                     style={{
+                      color: "white",
                       backgroundColor:
                         deviceStatus[device._id] === "on" ? "green" : "red",
-                      color: "white",
                     }}
                   >
                     {deviceStatus[device._id] === "on" ? "Turn Off" : "Turn On"}
@@ -132,17 +194,41 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
                 </ListItem>
               ))}
           </List>
+
+          <Box display="flex" justifyContent="flex-end" mt={2}>
+            <IconButton
+              aria-label="edit"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRoomEdit(selectedRoom);
+              }}
+              style={{ color: colors.grey[100] }}
+            >
+              <EditIcon />
+            </IconButton>
+
+            <IconButton
+              aria-label="delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteRoom(selectedRoom._id);
+              }}
+              style={{ color: colors.grey[100] }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
         </CardContent>
       </Card>
     </Box>
   );
 
   const renderRoomList = () => (
-    <Box m={"40px 0 0 0"} display="flex" flexWrap="wrap" gap={2}>
+    <Box m="40px 0 0 0" display="flex" flexWrap="wrap" gap={2}>
       {rooms.map((room, index) => (
         <Card
           key={index}
-          onClick={() => roomCardHandler(room)}
+          onClick={() => handleRoomSelection(room)}
           sx={{
             width: "300px",
             backgroundColor: colors.blueAccent[700],
@@ -151,7 +237,7 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
           }}
         >
           <CardContent>
-            <Typography variant="h5" component="div">
+            <Typography variant="h5">
               Room Name: {room.name || "No name specified"}
             </Typography>
             <Typography variant="body2">
@@ -204,129 +290,12 @@ export default function EmptyRoom({ onAddRoom, rooms, devices }) {
   );
 
   return (
-    <Box m={"2dvh"}>
+    <Box m="2dvh">
       {renderHeader()}
       {selectedRoom ? renderRoomDetails() : renderRoomList()}
       {!selectedRoom && renderAddRoomButton()}
+
       {renderSnackbar()}
-=======
-  // need to add here the dispatch
-  const editRoomHandler = async () => {};
-  const deleteRoomHandler = async () => {};
-  return (
-    <Box m={"2dvh"}>
-      <Header
-        title={"Rooms Page"}
-        subtitle={
-          "This space allows you to create and manage rooms, providing you with control over various technologies within your home."
-        }
-      />
-      {selectedRoom ? (
-        <Box m={"40px 0 0 0 "}>
-          <Button onClick={backToRoomsHandler} style={{ color: "white" }}>
-            Back to Rooms
-          </Button>
-          <Card
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              mb: 2,
-            }}
-          >
-            <CardContent>
-              <Typography variant="h5" component="div">
-                Room Name: {selectedRoom.name || "No name specified"}
-              </Typography>
-              <Typography variant="body2">
-                Room Type: {selectedRoom.roomType || "No type specified"}
-              </Typography>
-              <Typography variant="body2">Devices:</Typography>
-              <List>
-                {devices
-                  .filter(
-                    (device) =>
-                      device.room &&
-                      device.room.toString() === selectedRoom._id.toString()
-                  )
-                  .map((device) => (
-                    <ListItem key={device._id}>
-                      {device.name} - {device.status}
-                    </ListItem>
-                  ))}
-              </List>
-              <Box display={"flex"} justifyContent={"flex-end"} mt={2}>
-                <IconButton
-                  aria-label="edit"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  style={{ color: colors.grey[100] }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  aria-label="delete"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  style={{ color: colors.grey[100] }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
-      ) : (
-        <Box m={"40px 0 0 0 "} display="flex" flexWrap="wrap" gap={2}>
-          {rooms.map((room, index) => (
-            <Card
-              key={index}
-              onClick={() => roomCardHandler(room)}
-              sx={{
-                width: "300px",
-                backgroundColor: colors.blueAccent[700],
-                color: colors.grey[100],
-                cursor: "pointer",
-                position: "relative",
-              }}
-            >
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Room Name: {room.name || "No name specified"}
-                </Typography>
-                <Typography variant="body2">
-                  Room Type: {room.roomType || "No type specified"}
-                </Typography>
-                <Typography variant="body2">Devices:</Typography>
-                <List>
-                  {devices
-                    .filter(
-                      (device) =>
-                        device.room &&
-                        device.room.toString() === room._id.toString()
-                    )
-                    .map((device) => (
-                      <ListItem key={device._id}>
-                        Device: {device.name}
-                      </ListItem>
-                    )) || <ListItem>No devices</ListItem>}
-                </List>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      )}
-      {!selectedRoom && (
-        <Button
-          variant="contained"
-          style={{ marginTop: "2dvh" }}
-          onClick={onAddRoom}
-        >
-          + Add A Room
-        </Button>
-      )}
->>>>>>> Stashed changes
     </Box>
   );
 }

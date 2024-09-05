@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useTheme } from "@emotion/react";
+import React, { useState } from "react";
+
 import { Box, Button, Input, Link, Typography } from "@mui/material";
+import { useTheme } from "@emotion/react";
+
 import { useNavigate } from "react-router-dom";
+
 import { tokens } from "../../Theme";
 
 export default function Login({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
   const [errorMsg, setErrorMsg] = useState("");
 
   const nav = useNavigate();
@@ -15,13 +18,13 @@ export default function Login({ onLogin }) {
 
   const colors = tokens(theme.palette.mode);
 
-  const emailChangeHandler = (e) => {
-    setEmail(e.target.value);
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const passwordChangeHandler = (e) => {
-    setPassword(e.target.value);
-  };
+  const navigateToSignUp = () => nav("/signup");
 
   const loginHandler = async (e) => {
     e.preventDefault();
@@ -31,7 +34,7 @@ export default function Login({ onLogin }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(formData),
     })
       .then((response) => {
         if (!response.ok) {
@@ -48,19 +51,15 @@ export default function Login({ onLogin }) {
 
         localStorage.setItem("token", data.token);
         localStorage.setItem("loginTime", JSON.stringify(Date.now()));
-        localStorage.setItem("userEmail", email);
+        localStorage.setItem("userEmail", formData.email);
 
-        onLogin(email);
+        onLogin(formData.email);
         nav("/dashboard");
       })
       .catch((err) => {
         console.error("Login error:", err);
         setErrorMsg(err.message || "Something went wrong, please try again");
       });
-  };
-
-  const navigateToSignUp = () => {
-    nav("/signup");
   };
 
   return (
@@ -85,8 +84,9 @@ export default function Login({ onLogin }) {
           <Typography variant="h5">Email:</Typography>
           <Input
             type="email"
-            value={email}
-            onChange={emailChangeHandler}
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
             required
           />
         </Box>
@@ -94,8 +94,9 @@ export default function Login({ onLogin }) {
           <Typography variant="h5">Password:</Typography>
           <Input
             type="password"
-            value={password}
-            onChange={passwordChangeHandler}
+            name="password"
+            value={formData.pasword}
+            onChange={handleInputChange}
             required
           />
         </Box>

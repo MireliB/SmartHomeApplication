@@ -123,8 +123,8 @@ export default function Finances() {
             Detailed Expenses
           </Typography>
           <Grid container spacing={2}>
-            {expenses.map((expense) => (
-              <Grid item xs={12} md={4} key={expense.id}>
+            {expenses.map((expense, index) => (
+              <Grid item xs={12} md={4} key={index}>
                 <Card sx={{ backgroundColor: "#616161" }}>
                   <CardContent>
                     <Typography variant="h6">{expense.name}</Typography>
