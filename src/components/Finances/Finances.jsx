@@ -61,28 +61,30 @@ export default function Finances() {
 
   const addExpenseHandler = () => {
     if (!newExpense.name || !newExpense.amount || !newExpense.date) return;
+
     setExpenses([
       ...expenses,
       {
         ...newExpense,
+
         id: expenses.length + 1,
+
         amount: Number(newExpense.amount),
       },
     ]);
+
     setNewExpense({ name: "", amount: "", date: "" });
   };
 
-  const newExpenseNameHandler = (event) => {
+  const newExpenseNameHandler = (event) =>
     setNewExpense({ ...newExpense, name: event.target.value });
-  };
 
-  const newExpenseAmountHandler = (event) => {
+  const newExpenseAmountHandler = (event) =>
     setNewExpense({ ...newExpense, amount: event.target.value });
-  };
 
-  const newExpenseDateHandler = (event) => {
+  const newExpenseDateHandler = (event) =>
     setNewExpense({ ...newExpense, date: event.target.value });
-  };
+
   return (
     <Box p={2}>
       <Header title="Finances" subtitle="Check your Bills" />

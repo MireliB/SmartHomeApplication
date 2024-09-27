@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import { ColorModeContext, useMode } from "./Theme.js";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
@@ -14,68 +13,22 @@ import Homepage from "./components/Home/Homepage.jsx";
 import Login from "./components/LoginPage/Login.jsx";
 import AddRoom from "./components/Rooms/AddRoom.jsx";
 import Room from "./components/Rooms/Room.jsx";
-import Contacts from "./Scenes/Contacts.jsx";
 import EditRoom from "./components/Rooms/EditRoom.jsx";
 import Top from "./components/Global/Top.jsx";
 import Finances from "./components/Finances/Finances.jsx";
 
+import useApp from "./Hooks/useApp.js";
+
 function App() {
   const [theme, colorMode] = useMode();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const [userEmail, setUserEmail] = useState(() => {
-    const storedUserEmail = window.localStorage.getItem("userEmail");
-    return storedUserEmail || "";
-  });
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    const storedIsLoggedIn = window.localStorage.getItem("isLoggedIn");
+  const { handleLogin, handleLogout, isLoggedIn, setIsSidebarOpen } = useApp();
 
-    return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
-  });
-
-  useEffect(() => {
-    const token = window.localStorage.getItem("token");
-
-    if (token) {
-      const loginTime = JSON.parse(window.localStorage.getItem("loginTime"));
-      const expirationTime = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
-
-      if (loginTime && Date.now() - loginTime < expirationTime) {
-        setIsLoggedIn(true);
-
-        setUserEmail(window.localStorage.getItem("userEmail"));
-      } else {
-        handleLogout();
-      }
-    }
-  }, []);
-
-  const loginHandler = (email) => {
-    window.localStorage.setItem("loginTime", JSON.stringify(Date.now()));
-    window.localStorage.setItem("isLoggedIn", JSON.stringify(true));
-    window.localStorage.setItem("userEmail", email);
-
-    setUserEmail(email);
-    setIsLoggedIn(true);
-  };
-
-  // logout function
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-
-    window.localStorage.removeItem("token");
-    window.localStorage.removeItem("loginTime");
-    window.localStorage.removeItem("isLoggedIn");
-    window.localStorage.removeItem("userEmail");
-  };
-
-  // routers function for handling the login and not show the whole page when a user
-  // is not connected
   const renderRouterPaths = () => {
     if (!isLoggedIn) {
       return (
         <>
-          <Route path="/login" element={<Login onLogin={loginHandler} />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </>
@@ -91,7 +44,6 @@ function App() {
           <Route path="/room" element={<Room />} />
           <Route path="/device" element={<Device />} />
           <Route path="/aboutUs" element={<AboutUs />} />
-          <Route path="/contacts" element={<Contacts />} />
           <Route path="/finances" element={<Finances />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/editRoom/:roomId" element={<EditRoom />} />
@@ -100,7 +52,6 @@ function App() {
     }
   };
 
-  // render top header route with the sidebar
   const renderTopHeader = () => {
     if (isLoggedIn) {
       return <SideDrawer isLoggedIn={isLoggedIn} onLogout={handleLogout} />;

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 
 import { Box, Button, Input, Link, Typography } from "@mui/material";
-import { useTheme } from "@emotion/react";
 
 import { useNavigate } from "react-router-dom";
 
-import { tokens } from "../../Theme";
+import "./Login.css";
 
 export default function Login({ onLogin }) {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -14,9 +13,7 @@ export default function Login({ onLogin }) {
 
   const nav = useNavigate();
 
-  const theme = useTheme();
-
-  const colors = tokens(theme.palette.mode);
+  const navigateToSignUp = () => nav("/signup");
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -24,16 +21,15 @@ export default function Login({ onLogin }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const navigateToSignUp = () => nav("/signup");
-
-  const loginHandler = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:4000/login", {
+    await fetch("http://localhost:4000/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(formData),
     })
       .then((response) => {
@@ -47,8 +43,6 @@ export default function Login({ onLogin }) {
         return response.json();
       })
       .then((data) => {
-        console.log("Login Response: ", data);
-
         localStorage.setItem("token", data.token);
         localStorage.setItem("loginTime", JSON.stringify(Date.now()));
         localStorage.setItem("userEmail", formData.email);
@@ -63,23 +57,9 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <Box
-      sx={{
-        backgroundColor: colors.blueAccent[600],
-        borderRadius: theme.shape.borderRadius,
-        boxShadow: theme.shadows[2],
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: theme.spacing(3),
-        maxWidth: 400,
-        margin: "0 auto",
-        marginTop: theme.spacing(5),
-      }}
-    >
+    <Box className="login-wrapper">
       <Typography variant="h3">Login</Typography>
-      <Box component={"form"} onSubmit={loginHandler}>
+      <Box component={"form"} onSubmit={handleLogin}>
         <Box>
           <Typography variant="h5">Email:</Typography>
           <Input

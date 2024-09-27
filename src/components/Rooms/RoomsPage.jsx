@@ -13,13 +13,13 @@ import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 
 export default function RoomsPage() {
+  const token = localStorage.getItem("token");
+  const nav = useNavigate();
+
   const dispatch = useDispatch();
+
   const { rooms } = useSelector((state) => state.rooms);
   const { devices } = useSelector((state) => state.devices);
-
-  const token = localStorage.getItem("token");
-
-  const nav = useNavigate();
 
   useEffect(() => {
     if (token) {

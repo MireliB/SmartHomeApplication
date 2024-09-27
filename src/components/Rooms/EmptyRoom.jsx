@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 
 import { useTheme } from "@emotion/react";
-import {
-  CheckCircleOutline,
-  ErrorOutline,
-  ExitToAppSharp,
-} from "@mui/icons-material";
+import { CheckCircleOutline, ErrorOutline } from "@mui/icons-material";
 
 import { useDispatch } from "react-redux";
 
@@ -35,6 +31,8 @@ import Header from "../Header";
 import axios from "axios";
 
 export function EmptyRoom({ onAddRoom, rooms, devices }) {
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -81,6 +79,19 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
     }, 1000);
   };
 
+  const handleOpenPopup = (room) => {
+    setSelectedRoom(room);
+    setIsPopupOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (selectedRoom && selectedRoom._id) {
+      await handleDeleteRoom();
+      setIsPopupOpen(false);
+      setSelectedRoom(null);
+    }
+  };
+
   // doesnt work
   const handleRoomEdit = (room) => {
     if (!room || !room._id) return;
@@ -103,8 +114,7 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.error("No Token found. Please log in again.");
-      return;
+      throw new Error("No Token Found");
     }
 
     try {
@@ -130,6 +140,7 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
     } catch (err) {
       console.error("Error Deleting Room:", err);
     }
+    setIsPopupOpen(false);
   };
 
   const renderHeader = () => (
@@ -211,12 +222,21 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
               aria-label="delete"
               onClick={(e) => {
                 e.stopPropagation();
-                handleDeleteRoom(selectedRoom._id);
+                handleOpenPopup(selectedRoom);
               }}
               style={{ color: colors.grey[100] }}
             >
               <DeleteIcon />
             </IconButton>
+
+            {/* change design to not show the dialog in the same page */}
+            {isPopupOpen && (
+              <div>
+                <p>Are you sure you want to delete this room? </p>
+                <button onClick={confirmDelete}>Delete</button>
+                <button onClick={() => setIsPopupOpen(false)}>Cancel</button>
+              </div>
+            )}
           </Box>
         </CardContent>
       </Card>

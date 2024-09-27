@@ -17,20 +17,6 @@ app.use(
   })
 );
 
-const mongoUri = "mongodb://localhost:27017/";
-// DB connection
-mongoose
-  .connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-  });
-
 const jwtSecret = "secret"; // Make sure JWT_SECRET is defined in your .env
 
 // Schemas
@@ -167,8 +153,12 @@ app.put("/room/:id", authenticate, async (req, res) => {
 
 app.delete("/room/:id", authenticate, async (req, res) => {
   try {
-    await Room.findByIdAndDelete(req.params.id);
-    res.json({ message: "Room deleted" });
+    const deletedRoom = await Room.findByIdAndDelete(req.params.id);
+    if (!deletedRoom) {
+      return res.status(404).send({ error: "Room not found" });
+    }
+    res.status(200).send({ message: "Room deleted successfully" });
+    // res.json({ message: "Room deleted" });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

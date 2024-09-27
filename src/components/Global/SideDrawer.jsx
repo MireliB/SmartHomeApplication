@@ -40,19 +40,21 @@ const navigationItems = [
   { path: "/settings", name: "Settings", icon: <SettingsIcon /> },
   { path: "/logout", name: "Logout", icon: <LogoutIcon /> },
 ];
+
 export default function SideDrawer({ onLogout, isLoggedIn }) {
   const theme = useTheme();
+
   const colors = tokens(theme.palette.mode);
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
   const nav = useNavigate();
 
-  const collapsedHandler = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  const collapsedHandler = () => setIsCollapsed(!isCollapsed);
 
   const handleMouseEnter = (name) => setSelected(name);
+
   const handleMouseLeave = () => setSelected("");
 
   const handleLogOut = (path) => {
