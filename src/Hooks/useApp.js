@@ -31,7 +31,7 @@ const useApp = () => {
     }
   }, []);
 
-  const handleLogin = (email) => {
+  const onSubmitLogin = (email) => {
     let todayDate = Date.now();
 
     window.localStorage.setItem("loginTime", JSON.stringify(todayDate));
@@ -52,7 +52,7 @@ const useApp = () => {
   };
 
   return {
-    handleLogin,
+    onSubmitLogin,
     handleLogout,
     isLoggedIn,
     isSidebarOpen,

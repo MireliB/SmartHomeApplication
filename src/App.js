@@ -22,13 +22,14 @@ import useApp from "./Hooks/useApp.js";
 function App() {
   const [theme, colorMode] = useMode();
 
-  const { handleLogin, handleLogout, isLoggedIn, setIsSidebarOpen } = useApp();
+  const { onSubmitLogin, handleLogout, isLoggedIn, setIsSidebarOpen } =
+    useApp();
 
   const renderRouterPaths = () => {
     if (!isLoggedIn) {
       return (
         <>
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/login" element={<Login onLogin={onSubmitLogin} />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </>
