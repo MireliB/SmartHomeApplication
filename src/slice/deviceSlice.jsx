@@ -28,9 +28,11 @@ const deviceSlice = createSlice({
     setDevices: (state, action) => {
       state.devices = action.payload;
     },
+
     addDevice: (state, action) => {
       state.devices.push(action.payload);
     },
+
     deleteDevice: (state, action) => {
       const { deviceName, device } = action.payload;
       const deviceIndex = findDeviceByIndexName(state.devices, deviceName);

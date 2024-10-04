@@ -13,10 +13,6 @@ export default function Signup() {
 
   const nav = useNavigate();
 
-  const theme = useTheme();
-
-  const colors = tokens(theme.palette.mode);
-
   const emailChangeHandler = (e) => {
     setEmail(e.target.value);
   };
@@ -40,14 +36,14 @@ export default function Signup() {
         email,
         password,
       });
-      console.log("SignUp response:", response.data); // Logging the response
+      console.log("SignUp response:", response.data);
       if (response.data.message === "User registered successfully") {
         nav("/login");
       } else {
         setMessage(response.data.message);
       }
     } catch (err) {
-      console.error("SignUp error:", err); // Logging the error
+      console.error("SignUp error:", err);
       if (err.response) {
         setMessage(
           err.response.data.message || "Failed to sign up. Please try again."

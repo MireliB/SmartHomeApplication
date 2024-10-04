@@ -8,21 +8,18 @@ const findRoomIndexByName = (rooms, roomName) => {
   return rooms.findIndex((room) => room.roomName === roomName);
 };
 
-// const filteredRoomsById = (rooms, roomId) =>
-//   rooms.filter((room) => room.roomId !== roomId);
-
-// const updateRoom = (room, roomId, updatedRoom) => {
-//   return {
-//     ...room,
-//     rooms: room.rooms.map((room) =>
-//       room.roomId === roomId ? { ...room, ...updatedRoom } : room
-//     ),
-//   };
+// const removeRoomsById = (rooms, roomId) => {
+//   const roomIndex = rooms.findIndex((room) => room.roomId === roomId);
+//   if (roomIndex !== -1) rooms.splice(roomId, 1);
 // };
 
-const removeRoomsById = (rooms, roomId) => {
-  const roomIndex = rooms.findIndex((room) => room.roomId === roomId);
-  if (roomIndex !== -1) rooms.splice(roomId, 1);
+const updateRoom = (room, roomId, updatedRoom) => {
+  return {
+    ...room,
+    rooms: room.rooms.map((room) =>
+      room.roomId === roomId ? { ...room, ...updatedRoom } : room
+    ),
+  };
 };
 
 export const roomSlice = createSlice({
@@ -37,34 +34,22 @@ export const roomSlice = createSlice({
     },
 
     editRoom: (state, action) => {
-      const { _id, device } = action.payload;
-      const roomIndex = state.rooms.findIndex((room) => room.id === _id);
-      if (roomIndex !== -1) {
-        if (device) {
-          const deviceIndex = state.rooms[roomIndex].devices.findIndex(
-            (device) => device.id === device.deviceId
-          );
+      const { roomName, room } = action.payload;
 
-          if (deviceIndex !== -1) {
-            state.rooms[roomIndex].devices[deviceIndex] = {
-              ...state.rooms[roomIndex].devices[deviceIndex],
-              ...device,
-            };
-          }
-        } else {
-          state.rooms[roomIndex] = {
-            ...state.rooms[roomIndex],
-            ...action.payload,
-          };
-        }
+      const roomIndex = findRoomIndexByName(state.rooms, roomName);
+
+      if (roomIndex !== -1) {
+        state.rooms[roomIndex] = updateRoom(
+          state.rooms[roomIndex],
+          room.deviceId,
+          room
+        );
       }
     },
 
     deleteRoom: (state, action) => {
       const { roomId } = action.payload;
-
-      const roomIndex = state.rooms.findIndex((room) => room.id === roomId);
-
+      const roomIndex = state.rooms.findIndex((room) => room._id === roomId);
       if (roomIndex !== -1) {
         state.rooms.splice(roomIndex, 1);
       }

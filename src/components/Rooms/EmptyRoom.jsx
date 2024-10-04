@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-
+import { useParams } from "react-router-dom";
 import { useTheme } from "@emotion/react";
-import { CheckCircleOutline, ErrorOutline } from "@mui/icons-material";
+import {
+  CheckCircleOutline,
+  ErrorOutline,
+  LocalActivity,
+} from "@mui/icons-material";
 
 import { useDispatch } from "react-redux";
 
@@ -19,6 +23,10 @@ import {
   Snackbar,
   Typography,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 
 import { deleteRoom, editRoom } from "../../slice/roomSlice";
@@ -31,14 +39,14 @@ import Header from "../Header";
 import axios from "axios";
 
 export function EmptyRoom({ onAddRoom, rooms, devices }) {
+  const { id: roomId } = useParams();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const [selectedRoom, setSelectedRoom] = useState(null);
+
   const [loading, setLoading] = useState(false);
 
   const [selectedDevice, setSelectedDevice] = useState(null);
-
-  const [message, setMessage] = useState({ show: false, text: "", color: "" });
 
   const [deviceStatus, setDeviceStatus] = useState(
     devices.reduce((acc, device) => {
@@ -47,6 +55,8 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
       return acc;
     }, {})
   );
+  const [message, setMessage] = useState({ show: false, text: "", color: "" });
+
   const nav = useNavigate();
 
   const dispatch = useDispatch();
@@ -59,23 +69,44 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
 
   const colors = tokens(theme.palette.mode);
 
+  const updateDeviceStatus = async (deviceId, status) => {
+    const token = localStorage.getItem("token");
+
+    await axios.put(
+      `http://localhost:4000/device/${deviceId}`,
+      {
+        status,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  };
+
   const toggleDeviceStatus = (device) => {
     setLoading(true);
 
     const newStatus = deviceStatus[device._id] === "off" ? "on" : "off";
 
-    setTimeout(() => {
-      setLoading(false);
-      setDeviceStatus((prevState) => ({
-        ...prevState,
-        [device._id]: newStatus,
-      }));
-
-      setMessage({
-        show: true,
-        text: `Device ${device.name} turned ${newStatus}`,
-        color: newStatus === "on" ? "green" : "red",
-      });
+    setTimeout(async () => {
+      try {
+        await updateDeviceStatus(device._id, newStatus);
+        setDeviceStatus((prevState) => ({
+          ...prevState,
+          [device._id]: newStatus,
+        }));
+        setMessage({
+          show: true,
+          text: `Device ${device.name} turned ${newStatus}`,
+          color: newStatus === "on" ? "green" : "red",
+        });
+      } catch (err) {
+        console.error(" Error updating device status:", err);
+      } finally {
+        setLoading(false);
+      }
     }, 1000);
   };
 
@@ -93,28 +124,64 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
   };
 
   // doesnt work
-  const handleRoomEdit = (room) => {
-    if (!room || !room._id) return;
+  const handleRoomEdit = async () => {
+    if (!selectedRoom || !selectedRoom._id) return;
 
     const updateDevice = { deviceId: selectedDevice };
 
-    dispatch(editRoom({ _id: room._id, device: updateDevice }));
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/${selectedRoom._id}`,
+        { devices: updateDevice },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    setMessage({
-      show: true,
-      text: "Room edited successfully",
-      color: "green",
-    });
+      console.log("Room updated successfully", response.data);
 
-    nav(`/editRoom/${room._id}`, { state: { room } });
+      dispatch(editRoom({ _id: selectedRoom._id, device: updateDevice }));
+
+      setMessage({
+        show: true,
+        text: "Room edited successfully",
+        color: "green",
+      });
+      setTimeout(() => {
+        nav(`/editRoom/${selectedRoom._id}`, {
+          state: { roomId: selectedRoom._id },
+        });
+      }, 500);
+    } catch (err) {
+      console.error(
+        "Error updating room:",
+        err.response ? err.response.data : err.message
+      );
+
+      setMessage({
+        show: true,
+        text: "Error updating room",
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // doesnt work
-  const handleDeleteRoom = async (roomId) => {
+  // works
+  const handleDeleteRoom = async () => {
+    if (!selectedRoom || !selectedRoom._id) return;
+
+    // added roomId and converted to selectedRoom._id
+    const roomId = selectedRoom._id;
     const token = localStorage.getItem("token");
 
     if (!token) {
-      throw new Error("No Token Found");
+      console.error("No Token found. Please log in again.");
+      return;
     }
 
     try {
@@ -128,7 +195,7 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
       );
       console.log("Room deleted successfully", response.data);
 
-      dispatch(deleteRoom({ id: roomId }));
+      dispatch(deleteRoom({ roomId }));
 
       setMessage({
         show: true,
@@ -140,7 +207,6 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
     } catch (err) {
       console.error("Error Deleting Room:", err);
     }
-    setIsPopupOpen(false);
   };
 
   const renderHeader = () => (
@@ -229,14 +295,31 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
               <DeleteIcon />
             </IconButton>
 
-            {/* change design to not show the dialog in the same page */}
-            {isPopupOpen && (
-              <div>
-                <p>Are you sure you want to delete this room? </p>
-                <button onClick={confirmDelete}>Delete</button>
-                <button onClick={() => setIsPopupOpen(false)}>Cancel</button>
-              </div>
-            )}
+            {/* DELETE DIALOG POPUP  */}
+            <Dialog
+              open={isPopupOpen}
+              onClose={() => {
+                setIsPopupOpen(false);
+              }}
+            >
+              <DialogTitle>Confirm Delete</DialogTitle>
+              <DialogContent>
+                <Typography>
+                  Are you sure you want to delete this room?
+                </Typography>
+                <DialogActions>
+                  <Button sx={{ color: "red" }} onClick={confirmDelete}>
+                    Delete
+                  </Button>
+                  <Button
+                    sx={{ color: "white" }}
+                    onClick={() => setIsPopupOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </DialogActions>
+              </DialogContent>
+            </Dialog>
           </Box>
         </CardContent>
       </Card>
