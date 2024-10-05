@@ -7,8 +7,12 @@ import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 export default function Login({ onLogin }) {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
+  const { email, password } = formData;
   const [errorMsg, setErrorMsg] = useState("");
 
   const nav = useNavigate();
@@ -17,7 +21,6 @@ export default function Login({ onLogin }) {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -29,8 +32,7 @@ export default function Login({ onLogin }) {
       headers: {
         "Content-Type": "application/json",
       },
-
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ email, password }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -43,16 +45,14 @@ export default function Login({ onLogin }) {
         return response.json();
       })
       .then((data) => {
+        console.log("Login Response: ", data);
+
         localStorage.setItem("token", data.token);
         localStorage.setItem("loginTime", JSON.stringify(Date.now()));
-        localStorage.setItem("userEmail", formData.email);
+        localStorage.setItem("userEmail", email);
 
-        onLogin(formData.email);
+        onLogin(email);
         nav("/dashboard");
-      })
-      .catch((err) => {
-        console.error("Login error:", err);
-        setErrorMsg(err.message || "Something went wrong, please try again");
       });
   };
 
@@ -75,7 +75,7 @@ export default function Login({ onLogin }) {
           <Input
             type="password"
             name="password"
-            value={formData.pasword}
+            value={formData.password}
             onChange={handleInputChange}
             required
           />
@@ -96,7 +96,7 @@ export default function Login({ onLogin }) {
       )}
       <Box mt={2}>
         <Typography variant="body2">
-          Don't have an account?{" "}
+          Don't have an account?
           <Link
             component="button"
             sx={{ color: "white" }}

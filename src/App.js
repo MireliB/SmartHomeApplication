@@ -4,9 +4,9 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import SideDrawer from "./components/Global/SideDrawer.jsx";
 import Dashboard from "./components/Dashboard/Dashboard.jsx";
+import Finances from "./components/Finances/Finances.jsx";
 import Settings from "./components/Settings/Settings.jsx";
 import RoomsPage from "./components/Rooms/RoomsPage.jsx";
-import Device from "./components/RoomDevices/Device.jsx";
 import Signup from "./components/SignUpPage/Signup.jsx";
 import AboutUs from "./components/AboutUs/AboutUs.jsx";
 import Homepage from "./components/Home/Homepage.jsx";
@@ -15,7 +15,6 @@ import AddRoom from "./components/Rooms/AddRoom.jsx";
 import Room from "./components/Rooms/Room.jsx";
 import EditRoom from "./components/Rooms/EditRoom.jsx";
 import Top from "./components/Global/Top.jsx";
-import Finances from "./components/Finances/Finances.jsx";
 
 import useApp from "./Hooks/useApp.js";
 
@@ -43,7 +42,6 @@ function App() {
           <Route path="/roomsPage" element={<RoomsPage />} />
           <Route path="/addRoom" element={<AddRoom />} />
           <Route path="/room" element={<Room />} />
-          <Route path="/device" element={<Device />} />
           <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/finances" element={<Finances />} />
           <Route path="/settings" element={<Settings />} />
