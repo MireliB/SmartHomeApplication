@@ -39,7 +39,14 @@ import Header from "../Header";
 import axios from "axios";
 
 export function EmptyRoom({ onAddRoom, rooms, devices }) {
-  const { id: roomId } = useParams();
+  const nav = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const theme = useTheme();
+
+  const colors = tokens(theme.palette.mode);
+
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -48,6 +55,8 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
 
   const [selectedDevice, setSelectedDevice] = useState(null);
 
+  const [message, setMessage] = useState({ show: false, text: "", color: "" });
+
   const [deviceStatus, setDeviceStatus] = useState(
     devices.reduce((acc, device) => {
       acc[device._id] = device.status;
@@ -55,19 +64,10 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
       return acc;
     }, {})
   );
-  const [message, setMessage] = useState({ show: false, text: "", color: "" });
-
-  const nav = useNavigate();
-
-  const dispatch = useDispatch();
 
   const handleRoomSelection = (room) => setSelectedRoom(room);
 
   const handleBackToRooms = () => setSelectedRoom(null);
-
-  const theme = useTheme();
-
-  const colors = tokens(theme.palette.mode);
 
   const updateDeviceStatus = async (deviceId, status) => {
     const token = localStorage.getItem("token");
@@ -127,13 +127,17 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
   const handleRoomEdit = async () => {
     if (!selectedRoom || !selectedRoom._id) return;
 
-    const updateDevice = { deviceId: selectedDevice };
+    const updateDevice = selectedDevice ? [selectedDevice] : [];
 
     const token = localStorage.getItem("token");
     try {
       const response = await axios.put(
-        `http://localhost:4000/${selectedRoom._id}`,
-        { devices: updateDevice },
+        `http://localhost:4000/room/${selectedRoom._id}`,
+        {
+          name: selectedRoom.name,
+          roomType: selectedRoom.roomType,
+          devices: updateDevice,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -150,6 +154,7 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
         text: "Room edited successfully",
         color: "green",
       });
+
       setTimeout(() => {
         nav(`/editRoom/${selectedRoom._id}`, {
           state: { roomId: selectedRoom._id },
@@ -175,7 +180,6 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
   const handleDeleteRoom = async () => {
     if (!selectedRoom || !selectedRoom._id) return;
 
-    // added roomId and converted to selectedRoom._id
     const roomId = selectedRoom._id;
     const token = localStorage.getItem("token");
 

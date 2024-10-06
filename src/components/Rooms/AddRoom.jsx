@@ -1,31 +1,28 @@
 import React, { useState } from "react";
 
-import Header from "../Header";
+import axios from "axios";
 
 import { Box, Button, Input, Typography } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { addRoom } from "../../slice/roomSlice";
+
+import Header from "../Header";
 
 export default function AddRoom() {
   const nav = useNavigate();
+  const dispatch = useDispatch();
 
-  const token = localStorage.getItem("token");
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("");
   const [deviceName, setDeviceName] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const [status, setStatus] = useState("OFF");
 
-  /**
-   TODO : 
-   fix the add room handler 
-   it adds the room but also shows an axios error 
-    
-   Error adding room and device: AxiosError 
-   {message: 'Request failed with status code 500', name: 'AxiosError',
-    code: 'ERR_BAD_RESPONSE',
-    config: {…}, request: XMLHttpRequest, …}
-   * **/
+  const [loading, setLoading] = useState(false);
+
+  const token = localStorage.getItem("token");
 
   const roomNameChangeHandler = (e) => setRoomName(e.target.value);
 
@@ -33,39 +30,82 @@ export default function AddRoom() {
 
   const deviceChangeHandler = (e) => setDeviceName(e.target.value);
 
-  const addRoomHandler = async () => {
+  // works
+  const handleAddRoom = async () => {
+    setErrorMsg("");
+    setLoading(true);
+
     if (roomName && roomType) {
+      setLoading(true);
+
       try {
-        const newRoom = { roomName, roomType }; // Adjusted for backend schema
-        const roomResponse = await axios.post(
+        const newRoom = {
+          name: roomName,
+          roomType: roomType,
+          devices: [],
+        };
+
+        const response = await axios.post(
           "http://localhost:4000/room",
           newRoom,
+
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
+
+        const createdRoom = response.data;
+
+        dispatch(addRoom(createdRoom));
 
         if (deviceName) {
           const newDevice = {
             name: deviceName,
-            status: status, // Assuming a default status, adjust as needed
-            room: roomResponse.data._id,
+            status,
+            room: createdRoom._id,
           };
-          await axios.post("http://localhost:4000/device", newDevice, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          try {
+            await axios.post("http://localhost:4000/device", newDevice, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          } catch (deviceError) {
+            if (deviceError.response && deviceError.response.status === 400) {
+              setErrorMsg(
+                "Device with the same name already exist in this room "
+              );
+            } else {
+              setErrorMsg("Failed to add device. Please try again.");
+            }
+          }
         }
+
         setRoomName("");
         setRoomType("");
         setDeviceName("");
+
+        setStatus("OFF");
+
+        setLoading(false);
+
         nav("/roomsPage");
       } catch (err) {
-        console.error("Error adding room and device:", err);
+        setLoading(false);
+
+        console.error("Error adding room:", err);
+
+        if (err.response) {
+          setErrorMsg(
+            err.response.data.message ||
+              "An unexpected error occurred. Please try again."
+          );
+        } else if (err.request) {
+          setErrorMsg("No response from the server. Please try again later");
+        } else {
+          setErrorMsg("An unexpected error occurred. Please try again.");
+        }
       }
+    } else {
+      setErrorMsg("Please fill out the room name and type.");
     }
   };
 
@@ -75,6 +115,7 @@ export default function AddRoom() {
         title="Add Room"
         subtitle="You Can Create a Room and Choose a Type of Room"
       />
+
       <Typography>Room Name</Typography>
       <Input
         type="text"
@@ -96,9 +137,10 @@ export default function AddRoom() {
         value={deviceName}
         onChange={deviceChangeHandler}
       />
-      <Button onClick={addRoomHandler} variant="contained">
-        + Create Room
+      <Button onClick={handleAddRoom} variant="contained" disabled={loading}>
+        {loading ? "Creating..." : " + Create Room"}
       </Button>
+      {errorMsg && <Typography color="error">{errorMsg}</Typography>}
     </Box>
   );
 }

@@ -8,11 +8,6 @@ const findRoomIndexByName = (rooms, roomName) => {
   return rooms.findIndex((room) => room.roomName === roomName);
 };
 
-// const removeRoomsById = (rooms, roomId) => {
-//   const roomIndex = rooms.findIndex((room) => room.roomId === roomId);
-//   if (roomIndex !== -1) rooms.splice(roomId, 1);
-// };
-
 const updateRoom = (room, roomId, updatedRoom) => {
   return {
     ...room,
@@ -34,16 +29,17 @@ export const roomSlice = createSlice({
     },
 
     editRoom: (state, action) => {
-      const { roomName, room } = action.payload;
+      const { _id, name, roomType, device } = action.payload;
 
-      const roomIndex = findRoomIndexByName(state.rooms, roomName);
+      const roomIndex = state.rooms.findIndex((room) => room._id === _id);
 
       if (roomIndex !== -1) {
-        state.rooms[roomIndex] = updateRoom(
-          state.rooms[roomIndex],
-          room.deviceId,
-          room
-        );
+        state.rooms[roomIndex] = {
+          ...state.rooms[roomIndex],
+          name,
+          roomType,
+          device: device,
+        };
       }
     },
 

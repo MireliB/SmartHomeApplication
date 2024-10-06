@@ -1,7 +1,6 @@
-import React, { useState } from "react";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { tokens } from "../../Theme";
 import Header from "../Header";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
@@ -14,8 +13,6 @@ export default function Dashboard({ isLoggedIn }) {
   const colors = tokens(theme.palette.mode);
 
   const navigate = useNavigate();
-
-  const dispatch = useDispatch();
 
   const { rooms } = useSelector((state) => state.rooms);
   const { devices } = useSelector((state) => state.devices);
@@ -58,7 +55,6 @@ export default function Dashboard({ isLoggedIn }) {
         </Box>
       </Box>
 
-      {/* GRID  */}
       <Box
         display={"grid"}
         gridTemplateAreas={"repeat(12, 1fr)"}
@@ -124,19 +120,8 @@ export default function Dashboard({ isLoggedIn }) {
                 {rooms.map((room, index) => (
                   <Typography key={index}>
                     Room Name: {room.name}, RoomType: {room.roomType}
-                    {/* TODO
-                      FIX THE DELETE BUTTON - SAYS ROOM IS UNDEFINED */}
-                    {/* <button onClick={() => deleteRoomHandler(room.roomName)}>
-                      DELETE
-                    </button> */}
                   </Typography>
                 ))}
-
-                {/* {devices.map((device) => (
-                  <Typography>
-                    Device Name: {device.name}, Status: {device.status}
-                  </Typography>
-                ))} */}
               </Typography>
             </Box>
           </Box>
