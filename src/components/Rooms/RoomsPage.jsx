@@ -2,16 +2,15 @@ import React, { useEffect, useState } from "react";
 
 import { Box } from "@mui/material";
 
-import { EmptyRoom } from "./EmptyRoom";
-
 import { useDispatch, useSelector } from "react-redux";
-
-import { setRooms } from "../../slice/roomSlice";
-import { setDevices } from "../../slice/deviceSlice";
-
 import { useNavigate } from "react-router-dom";
 
+import { setDevices } from "../../slice/deviceSlice";
+import { setRooms } from "../../slice/roomSlice";
+
 import axios from "axios";
+
+import { EmptyRoom } from "./EmptyRoom";
 
 export default function RoomsPage() {
   const nav = useNavigate();

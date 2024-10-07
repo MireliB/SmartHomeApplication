@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   devices: [],
+  loading: false,
+  error: null,
 };
 
 const findDeviceByIndexName = (device, deviceName) => {
@@ -45,21 +47,24 @@ const deviceSlice = createSlice({
       }
     },
 
-    editDevice: (state, action) => {
-      const { deviceName, device } = action.payload;
-      const deviceIndex = findDeviceByIndexName(state.devices, deviceName);
-      if (deviceIndex !== -1) {
-        state.devices[deviceIndex] = updateDevicesInRoom(
-          state.devices[deviceIndex],
-          device.deviceId,
-          device
-        );
+    editDeviceSuccess: (state, action) => {
+      const { _id, name, status } = action.payload;
+      const index = state.devices.findIndex((device) => device._id === _id);
+      if (index !== -1) {
+        state.devices[index] = { ...state.devices[index], name, status };
       }
+    },
+    setLoading(state, action) {
+      state.loading = action.payload;
+    },
+    setError(state, action) {
+      state.error = action.payload;
     },
   },
 });
 
-export const { setDevices, addDevice, deleteDevices, editDevice } =
+export const { setDevices, addDevice, deleteDevices, editDeviceSuccess } =
   deviceSlice.actions;
 
+export const editDevice = (device) => async (dispatch) => {};
 export default deviceSlice.reducer;

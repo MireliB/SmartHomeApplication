@@ -29,7 +29,7 @@ import {
   DialogActions,
 } from "@mui/material";
 
-import { deleteRoom, editRoom } from "../../slice/roomSlice";
+import { deleteRoom } from "../../slice/roomSlice";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -52,8 +52,6 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
   const [selectedRoom, setSelectedRoom] = useState(null);
 
   const [loading, setLoading] = useState(false);
-
-  const [selectedDevice, setSelectedDevice] = useState(null);
 
   const [message, setMessage] = useState({ show: false, text: "", color: "" });
 
@@ -123,57 +121,10 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
     }
   };
 
-  // doesnt work
-  const handleRoomEdit = async () => {
-    if (!selectedRoom || !selectedRoom._id) return;
-
-    const updateDevice = selectedDevice ? [selectedDevice] : [];
-
-    const token = localStorage.getItem("token");
-    try {
-      const response = await axios.put(
-        `http://localhost:4000/room/${selectedRoom._id}`,
-        {
-          name: selectedRoom.name,
-          roomType: selectedRoom.roomType,
-          devices: updateDevice,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("Room updated successfully", response.data);
-
-      dispatch(editRoom({ _id: selectedRoom._id, device: updateDevice }));
-
-      setMessage({
-        show: true,
-        text: "Room edited successfully",
-        color: "green",
-      });
-
-      setTimeout(() => {
-        nav(`/editRoom/${selectedRoom._id}`, {
-          state: { roomId: selectedRoom._id },
-        });
-      }, 500);
-    } catch (err) {
-      console.error(
-        "Error updating room:",
-        err.response ? err.response.data : err.message
-      );
-
-      setMessage({
-        show: true,
-        text: "Error updating room",
-        color: "red",
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleRoomEdit = async (room) => {
+    nav(`/editRoom/${selectedRoom._id}`, {
+      state: { room },
+    });
   };
 
   // works
@@ -252,7 +203,7 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
               .map((device) => (
                 <ListItem key={device._id}>
                   <Typography variant="body2" style={{ flexGrow: 1 }}>
-                    {device.name} -{" "}
+                    {device.name} -
                     {loading && deviceStatus[device._id] !== device.status ? (
                       <CircularProgress size={14} />
                     ) : (

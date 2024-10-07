@@ -30,7 +30,6 @@ export default function AddRoom() {
 
   const deviceChangeHandler = (e) => setDeviceName(e.target.value);
 
-  // works
   const handleAddRoom = async () => {
     setErrorMsg("");
     setLoading(true);
