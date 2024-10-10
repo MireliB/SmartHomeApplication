@@ -40,7 +40,7 @@ export default function RoomsPage() {
 
       dispatch(setRooms(roomsResponse.data));
 
-      const deviceResponse = await axios.get("http://localhost:4000/rooms", {
+      const deviceResponse = await axios.get("http://localhost:4000/devices", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

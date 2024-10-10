@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
 import { useTheme } from "@emotion/react";
 import {
   CheckCircleOutline,
@@ -37,6 +36,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Header from "../Header";
 
 import axios from "axios";
+import DeleteRoomDialog from "./DeleteRoomDialog/DeleteRoomDialog";
 
 export function EmptyRoom({ onAddRoom, rooms, devices }) {
   const nav = useNavigate();
@@ -47,13 +47,11 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
 
   const colors = tokens(theme.palette.mode);
 
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-  const [selectedRoom, setSelectedRoom] = useState(null);
-
-  const [loading, setLoading] = useState(false);
-
   const [message, setMessage] = useState({ show: false, text: "", color: "" });
+  const [loadDevice, setLoadDevice] = useState({});
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const [deviceStatus, setDeviceStatus] = useState(
     devices.reduce((acc, device) => {
@@ -66,6 +64,37 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
   const handleRoomSelection = (room) => setSelectedRoom(room);
 
   const handleBackToRooms = () => setSelectedRoom(null);
+
+  const toggleDeviceStatus = (device) => {
+    setLoadDevice((prevState) => ({
+      ...prevState,
+      [device._id]: true,
+    }));
+
+    const newStatus = deviceStatus[device._id] === "OFF" ? "ON" : "OFF";
+
+    setTimeout(async () => {
+      try {
+        await updateDeviceStatus(device._id, newStatus);
+        setDeviceStatus((prevState) => ({
+          ...prevState,
+          [device._id]: newStatus,
+        }));
+        setMessage({
+          show: true,
+          text: `Device ${device.name} turned ${newStatus}`,
+          color: newStatus === "on" ? "green" : "red",
+        });
+      } catch (err) {
+        console.error("Error updating device status: ", err);
+      } finally {
+        setLoadDevice((prevState) => ({
+          ...prevState,
+          [device._id]: false,
+        }));
+      }
+    }, 1000);
+  };
 
   const updateDeviceStatus = async (deviceId, status) => {
     const token = localStorage.getItem("token");
@@ -81,31 +110,6 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
         },
       }
     );
-  };
-
-  const toggleDeviceStatus = (device) => {
-    setLoading(true);
-
-    const newStatus = deviceStatus[device._id] === "off" ? "on" : "off";
-
-    setTimeout(async () => {
-      try {
-        await updateDeviceStatus(device._id, newStatus);
-        setDeviceStatus((prevState) => ({
-          ...prevState,
-          [device._id]: newStatus,
-        }));
-        setMessage({
-          show: true,
-          text: `Device ${device.name} turned ${newStatus}`,
-          color: newStatus === "on" ? "green" : "red",
-        });
-      } catch (err) {
-        console.error(" Error updating device status:", err);
-      } finally {
-        setLoading(false);
-      }
-    }, 1000);
   };
 
   const handleOpenPopup = (room) => {
@@ -127,7 +131,6 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
     });
   };
 
-  // works
   const handleDeleteRoom = async () => {
     if (!selectedRoom || !selectedRoom._id) return;
 
@@ -192,7 +195,6 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
           <Typography variant="body2">
             Room Type: {selectedRoom.roomType || "No type specified"}
           </Typography>
-          <Typography variant="body2">Devices:</Typography>
           <List>
             {devices
               .filter(
@@ -203,7 +205,7 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
               .map((device) => (
                 <ListItem key={device._id}>
                   <Typography variant="body2" style={{ flexGrow: 1 }}>
-                    {device.name} -
+                    Device: {device.name} -
                     {loading && deviceStatus[device._id] !== device.status ? (
                       <CircularProgress size={14} />
                     ) : (
@@ -218,10 +220,10 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
                     style={{
                       color: "white",
                       backgroundColor:
-                        deviceStatus[device._id] === "on" ? "green" : "red",
+                        deviceStatus[device._id] === "ON" ? "green" : "red",
                     }}
                   >
-                    {deviceStatus[device._id] === "on" ? "Turn Off" : "Turn On"}
+                    {deviceStatus[device._id] === "ON" ? "Turn Off" : "Turn On"}
                   </Button>
                 </ListItem>
               ))}
@@ -250,31 +252,16 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
               <DeleteIcon />
             </IconButton>
 
-            {/* DELETE DIALOG POPUP  */}
-            <Dialog
-              open={isPopupOpen}
-              onClose={() => {
-                setIsPopupOpen(false);
-              }}
-            >
-              <DialogTitle>Confirm Delete</DialogTitle>
-              <DialogContent>
-                <Typography>
-                  Are you sure you want to delete this room?
-                </Typography>
-                <DialogActions>
-                  <Button sx={{ color: "red" }} onClick={confirmDelete}>
-                    Delete
-                  </Button>
-                  <Button
-                    sx={{ color: "white" }}
-                    onClick={() => setIsPopupOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                </DialogActions>
-              </DialogContent>
-            </Dialog>
+            {isPopupOpen && (
+              <DeleteRoomDialog
+                selectedRoom={selectedRoom}
+                setSelectedRoom={setSelectedRoom}
+                isPopupOpen={isPopupOpen}
+                setIsPopupOpen={setIsPopupOpen}
+                handleOpenPopup={handleOpenPopup}
+                confirmDelete={confirmDelete}
+              />
+            )}
           </Box>
         </CardContent>
       </Card>
@@ -329,12 +316,13 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
     </Button>
   );
 
-  const renderSnackbar = () => (
+  const renderPageUpdateMessages = () => (
     <Snackbar
       open={message.show}
       autoHideDuration={3000}
-      onClose={() => setMessage({ show: false, text: "", color: "" })}
+      onClose={() => setMessage({ ...message, show: false })}
       message={
+        // message.text
         <span style={{ color: message.color }}>
           {message.color === "green" ? (
             <CheckCircleOutline />
@@ -353,7 +341,7 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
       {selectedRoom ? renderRoomDetails() : renderRoomList()}
       {!selectedRoom && renderAddRoomButton()}
 
-      {renderSnackbar()}
+      {renderPageUpdateMessages()}
     </Box>
   );
 }

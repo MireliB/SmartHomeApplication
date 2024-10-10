@@ -4,19 +4,6 @@ const initialState = {
   rooms: [],
 };
 
-const findRoomIndexByName = (rooms, roomName) => {
-  return rooms.findIndex((room) => room.roomName === roomName);
-};
-
-const updateRoom = (room, roomId, updatedRoom) => {
-  return {
-    ...room,
-    rooms: room.rooms.map((room) =>
-      room.roomId === roomId ? { ...room, ...updatedRoom } : room
-    ),
-  };
-};
-
 export const roomSlice = createSlice({
   name: "rooms",
   initialState,
