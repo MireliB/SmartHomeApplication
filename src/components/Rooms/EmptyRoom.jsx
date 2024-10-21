@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { useTheme } from "@emotion/react";
-import {
-  CheckCircleOutline,
-  ErrorOutline,
-  LocalActivity,
-} from "@mui/icons-material";
+import { CheckCircleOutline, ErrorOutline } from "@mui/icons-material";
 
 import { useDispatch } from "react-redux";
 
@@ -22,21 +18,18 @@ import {
   Snackbar,
   Typography,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 
 import { deleteRoom } from "../../slice/roomSlice";
+import { setDevices } from "../../slice/deviceSlice";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+import DeleteRoomDialog from "./DeleteRoomDialog/DeleteRoomDialog";
 import Header from "../Header";
 
 import axios from "axios";
-import DeleteRoomDialog from "./DeleteRoomDialog/DeleteRoomDialog";
 
 export function EmptyRoom({ onAddRoom, rooms, devices }) {
   const nav = useNavigate();
@@ -154,6 +147,10 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
       console.log("Room deleted successfully", response.data);
 
       dispatch(deleteRoom({ roomId }));
+
+      const updateDevices = devices.filter((device) => device.room !== roomId);
+
+      dispatch(setDevices(updateDevices));
 
       setMessage({
         show: true,
@@ -322,7 +319,6 @@ export function EmptyRoom({ onAddRoom, rooms, devices }) {
       autoHideDuration={3000}
       onClose={() => setMessage({ ...message, show: false })}
       message={
-        // message.text
         <span style={{ color: message.color }}>
           {message.color === "green" ? (
             <CheckCircleOutline />

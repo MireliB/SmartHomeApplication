@@ -13,6 +13,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import { editRoom } from "../../slice/roomSlice";
+import EditRoomDialog from "./EditRoomDialog/EditRoomDialog";
+
 import axios from "axios";
 
 export default function EditRoom() {
@@ -25,9 +27,9 @@ export default function EditRoom() {
 
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("");
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [devices, setDevices] = useState([]);
 
-  //works
   useEffect(() => {
     if (room) {
       setRoomName(room.name || "");
@@ -41,7 +43,7 @@ export default function EditRoom() {
       _id: room._id,
       name: roomName,
       roomType,
-      devices,
+      devices: devices,
     };
 
     const token = localStorage.getItem("token");
@@ -67,9 +69,14 @@ export default function EditRoom() {
       );
     }
   };
-
+  // API KEY -  AIzaSyDmsWpGCz8BaHKxhVI3O3E7GXZWot6RZ9k
   const handleCancel = () => {
     nav("/roomsPage");
+  };
+
+  const confirmEdit = () => {
+    handleSave();
+    setIsEditPopupOpen(false);
   };
 
   return (
@@ -100,7 +107,11 @@ export default function EditRoom() {
             </Typography>
           ))}
           <Box display="flex" justifyContent="space-between" mt={2}>
-            <Button variant="contained" color="primary" onClick={handleSave}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsEditPopupOpen(true)}
+            >
               Save Changes
             </Button>
             <Button variant="outlined" color="secondary" onClick={handleCancel}>
@@ -109,6 +120,12 @@ export default function EditRoom() {
           </Box>
         </CardContent>
       </Card>
+
+      <EditRoomDialog
+        isEditPopupOpen={isEditPopupOpen}
+        setIsEditPopupOpen={setIsEditPopupOpen}
+        confirmEdit={confirmEdit}
+      />
     </Box>
   );
 }
